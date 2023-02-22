@@ -1,4 +1,5 @@
-import {VideoEntry} from "../domain/VideoEntry";
+import {VideoEntry} from "../domain/Messages";
+import {LI_STYLE, UL_STYLE} from "../domain/Constants";
 
 type VideoEntryListArgs = {
   entry: VideoEntry;
@@ -9,7 +10,7 @@ type VideoEntryListArgs = {
 export const VideoEntryList = (message: VideoEntryListArgs) => {
 
   const getClasses = (isLast: boolean): string => {
-    let classes = "w-full px-4 py-2 border-gray-200 dark:border-gray-600";
+    let classes = LI_STYLE;
     if (!isLast) {
       classes += " border-b";
     }
@@ -26,12 +27,12 @@ export const VideoEntryList = (message: VideoEntryListArgs) => {
   });
 
   const videos = message.entry.videos.map((name: string, index: number) => {
-    const classes = getClasses(index == lastVideo) + " text-gray-500"
+    const classes = getClasses(index == lastVideo) + " text-gray-600"
     return (<li key={name} className={classes} onClick={() => {message.playVideo(name); console.log(name)}}>{name}</li>);
   });
 
   return (
-    <ul className="text-sm font-medium text-gray-900 border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <ul className={UL_STYLE}>
       {child_collections}
       {videos}
   </ul>);
