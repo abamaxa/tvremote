@@ -1,67 +1,75 @@
+import {RestAdaptor} from "../adaptors/RestAdaptor";
+import {GeneralResponse, RemoteCommand, RemoteMessage, VideoEntry} from "../domain/Messages";
+import {log_error} from "./Logger";
+import {showInfoAlert} from "../components/Alert";
+
 export interface Player {
-
   playVideo: (video: string) => void;
-  executeCommand: (command: string) => void;
-
-  fetchCollection: () => Promise<Response>;
+  fetchCollection: () => Promise<VideoEntry>;
+  seek: ((interval: number) => void);
+  togglePause: (() => void);
+  setCurrentCollection: ((newCollection: string) => void);
+  getCurrentCollection: (() => string);
 }
 
 export class VideoPlayer implements Player {
 
-  readonly currentCollection: string;
-  readonly host: string;
+  private readonly currentCollection: string;
+  private readonly host: RestAdaptor;
+  private readonly remote_address?: string;
+  private readonly setCurrentCollectionHook: ((newCollection: string) => void);
 
-  constructor(currentCollection: string, host: string) {
+  constructor(currentCollection: string, setCurrentCollectionHook: ((newCollection: string) => void), host: RestAdaptor, remote_address?: string) {
     this.currentCollection = currentCollection;
     this.host = host;
+    this.remote_address = remote_address;
+    this.setCurrentCollectionHook = setCurrentCollectionHook;
+  }
+
+  setCurrentCollection = (newCollection: string) => {
+    this.setCurrentCollectionHook(newCollection);
+  }
+  getCurrentCollection = (): string =>  {
+    return this.currentCollection;
   }
 
   playVideo = (video: string) => {
-    const params = {
-      method: 'POST',
-      body: JSON.stringify({collection: this.currentCollection, video: video}),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
+    const msg = {
+      remote_address: this.remote_address,
+      collection: this.currentCollection,
+      video: video
+    };
 
-    fetch(this.makeUrl('play'), params)
+    this.post('remote/play', msg);
+  }
+
+  seek = (interval: number) => {
+    const msg: RemoteMessage = {Seek: {interval: interval}}
+    const command = new RemoteCommand(msg);
+    this.post('remote/control', command);
+  }
+
+  togglePause = () => {
+    const msg: RemoteMessage = {TogglePause: "ok"};
+    const command = new RemoteCommand(msg);
+    this.post('remote/control', command);
+  }
+
+  post = (path: string, params?: object | RemoteCommand) => {
+    this.host.post(path, params)
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
+      .then((data: GeneralResponse) => {
+        if (data.errors.length > 0) {
+          showInfoAlert(data.errors[0]);
+        }
       })
       .catch((err) => {
-        console.log(err)
-        alert(err);
-      })
+        log_error(err);
+      });
   }
 
-  executeCommand = (command: string) => {
-    const params = {
-      method: 'POST',
-      body: JSON.stringify({command: command}),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-
-    fetch(this.makeUrl('remote'), params)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-      })
-      .catch((err) => {
-        console.log(err)
-        alert(err);
-      })
-  }
-
-  fetchCollection = (): Promise<Response> => {
-    const url = this.currentCollection ? this.makeUrl('videos/' + this.currentCollection) : this.makeUrl("collections")
-    return fetch(url);
-  }
-
-  makeUrl = (resource: string): string => {
-    return `${this.host}${resource}`;
+  fetchCollection = async (): Promise<VideoEntry> => {
+    const path = this.currentCollection ? "media/" + this.currentCollection : "media";
+    return await this.host.get(path);
   }
 }
