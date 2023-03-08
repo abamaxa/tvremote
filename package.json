@@ -4,7 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "export": "next build && next export -o /Users/chris2/abamaxa/tvserver/client"
+    "export": "next build && next export -o /Users/chris2/abamaxa/tvserver/client/app"
   },
   "dependencies": {
     "flowbite": "^1.6.3",

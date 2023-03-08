@@ -20,19 +20,29 @@ export const VideoEntryList = (message: VideoEntryListArgs) => {
   const lastCollection = message.entry.child_collections.length - 1;
   const lastVideo = message.entry.videos.length - 1;
 
+  const back_button = (() => {
+    const classes = getClasses(false);
+    const collection = message.entry.parent_collection;
+    if (message.entry.collection === "") {
+      return (<></>);
+    }
+    return (<li key="0" className={classes} onClick={() => message.setCurrentCollection(collection)}>{'<-'} Back</li>)
+  })();
+
   const child_collections = message.entry.child_collections.map((name: string, index: number) => {
     const classes = getClasses(index == lastCollection && lastVideo < 0);
-
     return (<li key={name} className={classes} onClick={() => message.setCurrentCollection(name)}>{name}</li>);
   });
 
   const videos = message.entry.videos.map((name: string, index: number) => {
     const classes = getClasses(index == lastVideo) + " text-gray-600"
-    return (<li key={name} className={classes} onClick={() => {message.playVideo(name); console.log(name)}}>{name}</li>);
+    const displayName = name.replaceAll(".", " ");
+    return (<li key={name} className={classes} onClick={() => {message.playVideo(name)}}>{displayName}</li>);
   });
 
   return (
     <ul className={UL_STYLE}>
+      {back_button}
       {child_collections}
       {videos}
   </ul>);

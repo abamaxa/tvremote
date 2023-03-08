@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {log_error, log_info, log_warning} from "../src/services/Logger";
+import {log_info, log_warning} from "../src/services/Logger";
 import {SocketAdaptor} from "../src/adaptors/Socket";
 import {RemoteMessage} from "../src/domain/Messages";
 import {RestAdaptor} from "../src/adaptors/RestAdaptor";
@@ -14,13 +14,12 @@ const VideoControlPage = (props: VideoControlProps) => {
   const videoControlRef = useRef(null);
 
   useEffect(() => {
-
+    const host = props.host.getHost() ? props.host.getHost() : location.host;
     const socket = new SocketAdaptor(
-      () => new WebSocket(`ws://${props.host.getHost()}/ws`),
+      () => new WebSocket(`ws://${host}/remote/ws`),
       (message: RemoteMessage) => {
         if (message.Play !== undefined) {
-          const url = `http://${props.host.getHost()}${message.Play.url}`;
-          setCurrentVideo(url);
+          setCurrentVideo(message.Play.url);
 
         } else if (message.Seek !== undefined && videoControlRef !== null) {
           const vc = videoControlRef.current as unknown as HTMLVideoElement;
@@ -41,11 +40,9 @@ const VideoControlPage = (props: VideoControlProps) => {
 
   }, [props.host])
 
-
   const playFullScreen = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    // onLoadedMetadata={e => playFullScreen(e)}
     const video: HTMLVideoElement = e.currentTarget;
-    video.requestFullscreen().then(r => log_info(`requestFullscreen: ${r}`)).catch(r => log_error(`failed: ${r}`));
+    video.requestFullscreen().then(r => log_info(`requestFullscreen: ${r}`)).catch(r => log_info(`failed: ${r}`));
     video.className ="w-full";
   }
 

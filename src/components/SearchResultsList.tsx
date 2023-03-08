@@ -27,7 +27,9 @@ export const SearchResultsList = (props: SearchResultsConfig) => {
     )
   })
 
-  return (
-    <ul className={SEARCH_STYLE}>{resultList}</ul>
-  )
+  if (props.results.length == 0) {
+    return (<p className="px-1 py-2">No results</p>);
+  } else {
+    return (<ul className={SEARCH_STYLE}>{resultList}</ul>);
+  }
 }

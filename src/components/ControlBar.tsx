@@ -25,11 +25,12 @@ const ControlButton = (props: ControlButtonProps) => {
 }
 
 // <footer className="flex absolute inset-x-0 bottom-0 h-28 w-full items-center justify-center border-t bg-gray-50">
+// <footer className="flex h-28 mt-4 w-full items-center justify-center border-t">
 
 export const ControlBar = (props: ControlBarProps) => {
   const player = props.player;
   return (
-    <footer className="flex h-28 mt-4 w-full items-center justify-center border-t">
+    <footer className="flex h-28 w-full items-center justify-center border-t bg-gray-50">
       <div className="flex-auto flex items-center justify-evenly">
         <ControlButton ariaLabel="Rewind 10 seconds" onClick={() => player.seek(-15)}>
           <path fillRule="evenodd" clipRule="evenodd" fillOpacity="0.0"

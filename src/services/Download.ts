@@ -1,5 +1,5 @@
 import {RestAdaptor} from "../adaptors/RestAdaptor";
-import {DownloadingItem} from "../domain/Messages";
+import {DownloadingItem, SearchResult} from "../domain/Messages";
 import {log_error, log_warning} from "./Logger";
 import { DownloadingResponse } from "../domain/Messages";
 
@@ -7,7 +7,7 @@ export type setDownloadingList = ((items: DownloadingItem[]) => void);
 
 export interface DownloadService {
   list: ((callback: setDownloadingList) => void);
-  add: ((link: string) => void);
+  add: ((link: SearchResult) => void);
   delete: ((id: string) => void);
 }
 
@@ -18,33 +18,35 @@ export class DownloadManager implements DownloadService {
     this.host = host;
   }
 
-  list(callback: setDownloadingList) {
-    this.host.get("downloads/list")
-      .then((res) => res.json())
-      .then((data: DownloadingResponse) => {
-        if (data.results !== null) {
-          callback(data.results);
-        } else if (data.error !== null) {
-          log_warning(data.error);
-        }
-      })
-      .catch((err) => {
-        log_error(err)
-      });
+  async list(callback: setDownloadingList) {
+    try {
+      const data: DownloadingResponse = await this.host.get("downloads");
+      if (data.results !== null) {
+        callback(data.results);
+      } else if (data.error !== null) {
+        log_warning(data.error);
+      }
+    } catch (error) {
+      log_error(error);
+    }
   }
 
-  add(link: string) {
-    this.host.post("downloads/add", {link: link}).catch((err) => {
-      log_error(err)
-      alert(err);
-    });
+  async add(item: SearchResult) {
+    try {
+      await this.host.post(
+        "downloads",
+        {link: item.link, engine: item.engine}
+      );
+    } catch (error) {
+      log_error(error);
+    }
   }
 
-  delete(id: string) {
-    this.host.delete("downloads/delete/" + id).catch((err) => {
-      log_error(err)
-      alert(err);
-    });
+  async delete(id: string) {
+    try {
+      await this.host.delete("downloads/" + id);
+    } catch(error) {
+      log_error(error);
+    }
   }
-
 }

@@ -1,4 +1,5 @@
 import {RestAdaptor} from "../adaptors/RestAdaptor";
+import {showErrorAlert, showWarningAlert} from "../components/Alert";
 
 export interface Logger {
 
@@ -36,14 +37,26 @@ export const createLogger = (host: RestAdaptor) => {
   gLogger = new ServerLogger(host);
 }
 
-export const log = (level: string, message: string) => {
-  const conLog = level === ERROR ? console.error : console.log;
+export const log = (level: string, message: any, include_stack?: boolean) => {
+  const conLog = include_stack ? console.error : console.log;
+  const msg_str: string = makeString(message);
 
   if (gLogger === null) {
-    conLog(`NO LOGGER: ${level} - ${message}`)
+    conLog(`NO LOGGER: ${level} - ${msg_str}`);
+
   } else {
-    conLog(`${level} - ${message}`)
-    gLogger.log(level, message);
+    conLog(`${level} - ${msg_str}`);
+
+    let args: string[] = [msg_str];
+
+    if (include_stack) {
+      const stackTrace = Error().stack;
+      if (stackTrace !== undefined) {
+        args = [...args, ...stackTrace.split("\n")];
+      }
+    }
+
+    gLogger.log_messages(level, args);
   }
 }
 
@@ -53,21 +66,20 @@ export const log_info = (message: string) => {
 
 export const log_warning = (message: string) => {
   log(WARNING, message);
-  alert(message);
+  showWarningAlert(message);
 }
 
-export const log_error = (message: string) => {
+export const log_error = (message: any) => {
+  log(ERROR, message, true);
+  showErrorAlert(message);
+}
 
-  const stackTrace = Error().stack;
-
-  const msg_str = JSON.stringify(message);
-
-  if (stackTrace === undefined || gLogger == null) {
-    log(ERROR, message);
-  } else {
-    const parts = stackTrace.split("\n");
-    gLogger.log_messages(ERROR, [msg_str, ...parts]);
+export const makeString = (message: any): string => {
+  if (typeof message === "string") {
+    return message as string;
+  } else if (message instanceof Error) {
+    return message.message;
   }
 
-  alert(message);
+  return JSON.stringify(message);
 }

@@ -10,23 +10,24 @@ type DownloadsConfig = {
   isActive: boolean;
 }
 
-export const Downloads = (props: DownloadsConfig) => {
+export const DownloadTab = (props: DownloadsConfig) => {
 
   const [downloadResults, setDownloadResults] = useState([] as DownloadingItem[]);
 
   useEffect(() => {
-    if (props.isActive) {
-      let searchEngine = new DownloadManager(props.host);
+      if (props.isActive) {
+        let searchEngine = new DownloadManager(props.host);
 
-      searchEngine.list(setDownloadResults);
-
-      const interval = setInterval(() => {
         searchEngine.list(setDownloadResults);
-      }, 2000);
 
-      return () => clearInterval(interval);
-    }
-  }, [props.isActive]);
+        const interval = setInterval(async () => {
+          await searchEngine.list(setDownloadResults);
+        }, 2000);
+
+        return () => clearInterval(interval);
+      }
+
+  }, [props.isActive, props.host]);
 
   const onItemClick = (item: DownloadingItem) => {
     console.log(`onItemClick: ${item}`);
@@ -34,7 +35,7 @@ export const Downloads = (props: DownloadsConfig) => {
 
   return (
     <div className="p-0">
-      <DownloadList  results={downloadResults} onItemClick={onItemClick}/>
+      <DownloadList results={downloadResults} onItemClick={onItemClick}/>
     </div>
   )
 }
@@ -62,7 +63,7 @@ const DownloadList = (props: DownloadListConfig) => {
         <p>{ result.name }</p>
         <p className="text-gray-600 text-xs">
           Size: {result.downloadedSize}/{result.totalSize}&nbsp;
-          Eta: {result.eta} secs ({result.percentDone * 100}&#37;)&nbsp;
+          Eta: {result.eta} secs ({(result.percentDone * 100).toFixed(2)}&#37;)&nbsp;
         </p>
         <p className="text-gray-600 text-xs">
           Rate: {result.rateDownload}/{result.rateUpload}&nbsp;
@@ -72,5 +73,9 @@ const DownloadList = (props: DownloadListConfig) => {
     )
   })
 
-  return (<ul className={UL_STYLE}>{ downloadingItems }</ul>)
+  if (props.results.length == 0) {
+    return (<p className="px-1 py-2">No results</p>);
+  } else {
+    return (<ul className={UL_STYLE}>{ downloadingItems }</ul>);
+  }
 }

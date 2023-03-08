@@ -3,11 +3,12 @@ import VideoControlPage from "./VideoControlPage";
 import {createLogger} from "../src/services/Logger";
 import {useEffect, useState} from "react";
 import {HTTPRestAdaptor, RestAdaptor} from "../src/adaptors/RestAdaptor";
-import {MainTab} from "../src/components/MainTab";
+import {Main} from "../src/components/Main";
 
 // const host: RestAdaptor = new HTTPRestAdaptor("coco.abamaxa.com");
-const host: RestAdaptor = new HTTPRestAdaptor("higo.abamaxa.com");
-// const host: RestAdaptor = new HTTPRestAdaptor("localhost:4000");
+const host: RestAdaptor = new HTTPRestAdaptor("localhost");
+// const host: RestAdaptor = new HTTPRestAdaptor("higo.abamaxa.com");
+// const host: RestAdaptor = new HTTPRestAdaptor();
 
 createLogger(host);
 
@@ -25,7 +26,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
-    if (userAgent.includes("SMART-TV") || userAgent.includes("Firefox/109")) {
+    if (userAgent.includes("SMART-TV") || userAgent.includes("Firefox/110")) {
       setMode(Mode.Video)
     } else {
       setMode(Mode.Remote)
@@ -35,7 +36,7 @@ const Home: NextPage = () => {
   if (mode == Mode.Video) {
     return (<VideoControlPage host={host}/>)
   } else if (mode == Mode.Remote) {
-    return (<MainTab host={host}/>)
+    return (<Main host={host}/>)
   } else {
     return (<p>Loading...</p>)
   }

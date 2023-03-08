@@ -37,17 +37,23 @@ export class VideoEntry {
   errors: string[] = [];
 }
 
+enum SearchEngine {
+  YouTube = "youtube",
+  PirateBay = "piratebay",
+}
+
 
 export class SearchResult {
   readonly title: string;
   readonly description: string;
-
   readonly link: string;
+  readonly engine: SearchEngine;
 
-  constructor(title: string, description: string, link: string) {
+  constructor(title: string, description: string, link: string, engine: SearchEngine) {
     this.title = title;
     this.description = description;
     this.link = link;
+    this.engine = engine;
   }
 }
 
@@ -57,6 +63,11 @@ export interface ResultsMessage<T> {
 }
 
 export type SearchResultsMessage = ResultsMessage<SearchResult>;
+
+export interface GeneralResponse {
+  message: string;
+  errors: string[];
+}
 
 export type HostConfig = {
   host: RestAdaptor;

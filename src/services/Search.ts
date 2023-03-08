@@ -1,6 +1,7 @@
 import {SearchResult, SearchResultsMessage} from "../domain/Messages";
 import {RestAdaptor} from "../adaptors/RestAdaptor";
 import {log_error} from "./Logger";
+import {showInfoAlert} from "../components/Alert";
 
 export type setSearchResults = ((data: SearchResult[]) => void);
 
@@ -18,20 +19,17 @@ export class BaseSearch implements Search {
     this.url = url;
   }
 
-  query(term: string, setResultsCallback: setSearchResults) {
-    this.host.get(this.url + term)
-      .then((res) => res.json())
-      .then((data: SearchResultsMessage) => {
-        if (data.results !== null) {
-          setResultsCallback(data.results);
-        } else if (data.error !== null) {
-          alert(data.error);
-        }
-      })
-      .catch((err) => {
-        log_error(err)
-        alert(err);
-      });
+  async query(term: string, setResultsCallback: setSearchResults) {
+    try {
+      const data: SearchResultsMessage = await this.host.get(this.url + term);
+      if (data.results !== null) {
+        setResultsCallback(data.results);
+      } else if (data.error !== null) {
+        showInfoAlert(data.error);
+      }
+    } catch(error) {
+      log_error(error);
+    }
   }
 }
 
