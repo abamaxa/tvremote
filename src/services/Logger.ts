@@ -1,5 +1,5 @@
 import {RestAdaptor} from "../adaptors/RestAdaptor";
-import {showErrorAlert, showWarningAlert} from "../components/Alert";
+import {showErrorAlert, showWarningAlert} from "../components/Base/Alert";
 
 export interface Logger {
 

@@ -1,13 +1,15 @@
 import {useEffect, useState} from "react";
-import {VideoEntry} from "../domain/Messages";
-import {VideoPlayer} from "../services/Player";
-import {VideoEntryList} from "./VideoEntryList";
-import {RestAdaptor} from "../adaptors/RestAdaptor";
-import {log_error} from "../services/Logger";
+import {VideoEntry} from "../../domain/Messages";
+import {VideoPlayer} from "../../services/Player";
+import {VideoList} from "./VideoList";
+import {RestAdaptor} from "../../adaptors/RestAdaptor";
+import {log_error} from "../../services/Logger";
+import {TaskManager} from "../../services/Task";
 
 type VideoConfig = {
   host: RestAdaptor;
   videoPlayer: VideoPlayer;
+  isActive: boolean;
 }
 
 const VideoTab = (props: VideoConfig) => {
@@ -26,17 +28,25 @@ const VideoTab = (props: VideoConfig) => {
       }
     };
 
-    fetchData();
+    if (props.isActive) {
 
-  }, [props.videoPlayer.getCurrentCollection, props.videoPlayer])
+      fetchData();
+
+      const interval = setInterval(async () => {
+        await fetchData()
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [props.videoPlayer.getCurrentCollection, props.videoPlayer, props.isActive])
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center p-0">
       <main className="flex w-full flex-1 flex-col items-left justify-left">
-        <VideoEntryList
+        <VideoList
           entry={collections}
           setCurrentCollection={props.videoPlayer.setCurrentCollection}
-          playVideo={props.videoPlayer.playVideo}
+          videoPlayer={props.videoPlayer}
         />
       </main>
     </div>

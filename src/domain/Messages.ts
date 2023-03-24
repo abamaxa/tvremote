@@ -73,21 +73,40 @@ export type HostConfig = {
   host: RestAdaptor;
 }
 
-export interface DownloadingItem {
-  downloadFinished: boolean;
-  downloadedSize: number;
-  errorString: string;
-  eta: number;
-  id: number;
-  leftUntilDone: number;
+export interface TaskState {
+  key: string;
   name: string;
-  peersConnected: number;
-  peersGettingFromUs: number;
-  peersSendingToUs: number;
+  displayName: string;
+  finished: boolean;
+  eta: number;
   percentDone: number;
-  rateDownload: number;
-  rateUpload: number;
-  totalSize: number;
+  sizeDetails: string;
+  rateDetails: string;
+  processDetails: string;
+  errorString: string;
 }
 
-export type DownloadingResponse = ResultsMessage<DownloadingItem>;
+export type TaskListResponse = ResultsMessage<TaskState>;
+
+export interface Conversion {
+  name: string;
+  description: string;
+}
+
+export type ConversionListMessage = ResultsMessage<Conversion>;
+
+export class ConversionRequest {
+  private readonly name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+export class RenameRequest {
+  private readonly newName: string;
+
+  constructor(newName: string) {
+    this.newName = newName;
+  }
+}

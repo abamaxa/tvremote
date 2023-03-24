@@ -1,10 +1,13 @@
-import { SearchResult } from '../domain/Messages';
-import {LI_STYLE, UL_STYLE} from "../domain/Constants";
+import { SearchResult } from '../../domain/Messages';
+import {LI_STYLE, UL_STYLE} from "../../domain/Constants";
+import {State} from "./Reducer";
 
 type SearchResultsConfig = {
   results: SearchResult[];
 
   onItemClick: ((item: SearchResult) => void);
+
+  state: State;
 }
 
 const SEARCH_STYLE = UL_STYLE + " mt-4";
@@ -28,7 +31,8 @@ export const SearchResultsList = (props: SearchResultsConfig) => {
   })
 
   if (props.results.length == 0) {
-    return (<p className="px-1 py-2">No results</p>);
+    const forTerm = props.state.lastSearch ? `for ${props.state.lastSearch}` : "";
+    return (<p className="px-1 py-2">No results {forTerm}</p>);
   } else {
     return (<ul className={SEARCH_STYLE}>{resultList}</ul>);
   }

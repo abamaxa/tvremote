@@ -4,6 +4,7 @@ export interface RestAdaptor {
   get: <T>(path: string) => Promise<T>;
   delete: (path: string) => Promise<Response>;
   post: <T>(path: string, payload: T) => Promise<Response>;
+  put: <T>(path: string, payload: T) => Promise<Response>;
   getHost: () => string | null;
 }
 
@@ -25,9 +26,17 @@ export class HTTPRestAdaptor implements RestAdaptor {
   }
 
   post = async <T>(path: string, payload: T): Promise<Response> => {
+    return this.send('POST', path, JSON.stringify(payload));
+  }
+
+  put = async <T>(path: string, payload: T): Promise<Response> => {
+    return this.send('PUT', path, JSON.stringify(payload));
+  }
+
+  send = async (method: string, path: string, payload: string): Promise<Response> => {
     const params = {
-      method: 'POST',
-      body: JSON.stringify(payload),
+      method: method,
+      body: payload,
       headers: {
         'Content-Type': 'application/json'
       }

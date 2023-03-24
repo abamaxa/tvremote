@@ -1,6 +1,6 @@
 import {Button, Modal} from "flowbite-react";
 import {HiOutlineExclamationCircle, HiOutlineInformationCircle, HiExclamation, HiOutlineQuestionMarkCircle} from "react-icons/hi";
-import {makeString} from "../services/Logger";
+import {makeString} from "../../services/Logger";
 
 enum AlertType {
   Error = 0,
@@ -42,11 +42,14 @@ class AlertManager {
   }
 
   okClicked = () => {
-    if (this.onOk !== undefined) {
-      this.onOk();
-      this.onOk = undefined;
-    }
+    const onOk = this.onOk;
+    this.onOk = undefined;
+
     this.hideAlert();
+
+    if (onOk !== undefined) {
+      onOk();
+    }
   }
 }
 
@@ -64,7 +67,7 @@ export const showInfoAlert = (message: string) => {
   showAlert(message, AlertType.Information);
 }
 
-export const showQuestionAlert = (message: string, onOk?: (() => void)) => {
+export const askQuestion = (message: string, onOk?: (() => void)) => {
   showAlert(message, AlertType.Question, onOk);
 }
 
@@ -104,7 +107,7 @@ export const Alert = (props: AlertConfig) => {
   }
 
   return (
-    <Modal show={props.show} size="md" popup={true}>
+    <Modal className="z-50" show={props.show} size="md" popup={true}>
       <Modal.Header />
       <Modal.Body>
         <div className="text-center">

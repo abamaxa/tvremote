@@ -1,17 +1,17 @@
 import {RestAdaptor} from "../adaptors/RestAdaptor";
-import {DownloadingItem, SearchResult} from "../domain/Messages";
+import {TaskState, SearchResult} from "../domain/Messages";
 import {log_error, log_warning} from "./Logger";
-import { DownloadingResponse } from "../domain/Messages";
+import { TaskListResponse } from "../domain/Messages";
 
-export type setDownloadingList = ((items: DownloadingItem[]) => void);
+export type setDownloadingList = ((items: TaskState[]) => void);
 
-export interface DownloadService {
+export interface TaskService {
   list: ((callback: setDownloadingList) => void);
   add: ((link: SearchResult) => void);
   delete: ((id: string) => void);
 }
 
-export class DownloadManager implements DownloadService {
+export class TaskManager implements TaskService {
   private readonly host: RestAdaptor;
 
   constructor(host: RestAdaptor) {
@@ -20,7 +20,7 @@ export class DownloadManager implements DownloadService {
 
   async list(callback: setDownloadingList) {
     try {
-      const data: DownloadingResponse = await this.host.get("downloads");
+      const data: TaskListResponse = await this.host.get("tasks");
       if (data.results !== null) {
         callback(data.results);
       } else if (data.error !== null) {
@@ -34,8 +34,8 @@ export class DownloadManager implements DownloadService {
   async add(item: SearchResult) {
     try {
       await this.host.post(
-        "downloads",
-        {link: item.link, engine: item.engine}
+        "tasks",
+        {name: item.title, link: item.link, engine: item.engine}
       );
     } catch (error) {
       log_error(error);
@@ -44,7 +44,7 @@ export class DownloadManager implements DownloadService {
 
   async delete(id: string) {
     try {
-      await this.host.delete("downloads/" + id);
+      await this.host.delete("tasks/" + id);
     } catch(error) {
       log_error(error);
     }

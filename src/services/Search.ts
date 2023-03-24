@@ -1,7 +1,7 @@
 import {SearchResult, SearchResultsMessage} from "../domain/Messages";
 import {RestAdaptor} from "../adaptors/RestAdaptor";
 import {log_error} from "./Logger";
-import {showInfoAlert} from "../components/Alert";
+import {showInfoAlert} from "../components/Base/Alert";
 
 export type setSearchResults = ((data: SearchResult[]) => void);
 

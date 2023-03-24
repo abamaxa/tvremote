@@ -1,24 +1,30 @@
-import {ChangeEvent, FormEvent, useState} from "react";
+import {ChangeEvent, Dispatch, FormEvent} from "react";
 import {Label, Radio} from "flowbite-react";
-import {SE_PIRATEBAY, SE_YOUTUBE} from "../domain/Constants";
+import {SE_PIRATEBAY, SE_YOUTUBE} from "../../domain/Constants";
+import {Action, ActionKind, State} from "./Reducer";
 
 type SearchBoxConfig = {
   doSearch: ((query: string, engine: string) => void);
+  state: State;
+  dispatch: Dispatch<Action>;
 }
 
 export const SearchBox = (props: SearchBoxConfig) => {
 
-  const [engine, setEngine] = useState(SE_PIRATEBAY);
+  // const [engine, setEngine] = useState(SE_PIRATEBAY);
 
   const onEngineSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
-    setEngine(target.value);
+    props.dispatch({type: ActionKind.ENGINE, payload: target.value});
+  }
+
+  const onSetTerm = (e: ChangeEvent<HTMLInputElement>) => {
+    props.dispatch({type: ActionKind.TERM, payload: e.currentTarget.value});
   }
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    let term: HTMLInputElement | null = document.getElementById("search-term") as HTMLInputElement;
-    if (term !== null) {
-      props.doSearch(term.value, engine);
+    if (props.state.term) {
+      props.doSearch(props.state.term, props.state.engine);
     }
     e.preventDefault();
   }
@@ -36,7 +42,10 @@ export const SearchBox = (props: SearchBoxConfig) => {
                     clipRule="evenodd"></path>
             </svg>
           </div>
-          <input type="text" id="search-term"
+          <input type="text"
+                 id="search-term"
+                 onChange={onSetTerm}
+                 value={props.state.term}
                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                  placeholder="SearchTab" required />
         </div>
@@ -56,7 +65,7 @@ export const SearchBox = (props: SearchBoxConfig) => {
               id="piratebay"
               name="engine"
               value={SE_PIRATEBAY}
-              defaultChecked={true}
+              defaultChecked={props.state.engine === SE_PIRATEBAY}
               onChange={onEngineSelect}
           />
           <Label htmlFor="piratebay">
@@ -68,6 +77,7 @@ export const SearchBox = (props: SearchBoxConfig) => {
               id="youtube"
               name="engine"
               value={SE_YOUTUBE}
+              defaultChecked={props.state.engine === SE_YOUTUBE}
               onChange={onEngineSelect}
           />
           <Label htmlFor="youtube">
