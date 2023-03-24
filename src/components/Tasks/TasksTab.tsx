@@ -6,24 +6,24 @@ import {RestAdaptor} from "../../adaptors/RestAdaptor";
 import {TaskDetails} from "./TaskDetails";
 
 
-type DownloadsConfig = {
+type TaskTabProps = {
   host: RestAdaptor;
   isActive: boolean;
 }
 
-export const TasksTab = (props: DownloadsConfig) => {
+export const TasksTab = (props: TaskTabProps) => {
 
   const [downloadResults, setDownloadResults] = useState([] as TaskState[]);
+
+  const taskManager = new TaskManager(props.host);
 
   useEffect(() => {
     // TODO: push changes over websocket
     if (props.isActive) {
-      let searchEngine = new TaskManager(props.host);
-
-      searchEngine.list(setDownloadResults);
+      taskManager.list(setDownloadResults);
 
       const interval = setInterval(async () => {
-        await searchEngine.list(setDownloadResults);
+        await taskManager.list(setDownloadResults);
       }, 2000);
 
       return () => clearInterval(interval);
@@ -31,8 +31,8 @@ export const TasksTab = (props: DownloadsConfig) => {
 
   }, [props.isActive, props.host]);
 
-  const onItemClick = (item: TaskState) => {
-    console.log(`onItemClick: ${item}`);
+  const onItemClick = async (item: TaskState) => {
+    await taskManager.delete(item);
   }
 
   return (
@@ -50,10 +50,6 @@ type TaskListConfig = {
 
 const TaskList = (props: TaskListConfig) => {
 
-  const onItemClick = (item: TaskState, e: MouseEvent<HTMLLIElement>) => {
-    console.log(`onItemClick: ${item}, ${e}`)
-  }
-
   const downloadingItems = props.results.map((result: TaskState, idx: number, arr:TaskState[]) => {
     let classes = LI_STYLE;
     if (idx != arr.length - 1) {
@@ -62,7 +58,7 @@ const TaskList = (props: TaskListConfig) => {
 
 
     return (
-      <li className={classes} key={"search:" + idx} onClick={(e) => onItemClick(result, e)}>
+      <li className={classes} key={"search:" + idx} onClick={(e) => props.onItemClick(result)}>
         <p>{ result.displayName }</p>
         <TaskDetails result={result} index={idx} />
       </li>

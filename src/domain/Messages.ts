@@ -73,6 +73,12 @@ export type HostConfig = {
   host: RestAdaptor;
 }
 
+enum TaskType {
+  Transmission = "transmission",
+  AsyncProcess = "asyncprocess",
+}
+
+
 export interface TaskState {
   key: string;
   name: string;
@@ -84,6 +90,7 @@ export interface TaskState {
   rateDetails: string;
   processDetails: string;
   errorString: string;
+  taskType: TaskType;
 }
 
 export type TaskListResponse = ResultsMessage<TaskState>;
