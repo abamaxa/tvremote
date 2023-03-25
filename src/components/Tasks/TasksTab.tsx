@@ -15,11 +15,11 @@ export const TasksTab = (props: TaskTabProps) => {
 
   const [downloadResults, setDownloadResults] = useState([] as TaskState[]);
 
-  const taskManager = new TaskManager(props.host);
-
   useEffect(() => {
     // TODO: push changes over websocket
     if (props.isActive) {
+      const taskManager = new TaskManager(props.host);
+
       taskManager.list(setDownloadResults);
 
       const interval = setInterval(async () => {
@@ -32,6 +32,7 @@ export const TasksTab = (props: TaskTabProps) => {
   }, [props.isActive, props.host]);
 
   const onItemClick = async (item: TaskState) => {
+    const taskManager = new TaskManager(props.host);
     await taskManager.delete(item);
   }
 
