@@ -113,7 +113,7 @@ export const ConvertModal = (props: VideoModalProps) => {
           <div className="mb-2 block">
             <Label htmlFor="conversion" value="Convert Video"/>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 min-w-[16em]">
             {conversionsList}
           </div>
         </div>
