@@ -20,7 +20,9 @@ export const TasksTab = (props: TaskTabProps) => {
     if (props.isActive) {
       const taskManager = new TaskManager(props.host);
 
-      taskManager.list(setDownloadResults);
+      (async () => {
+        await taskManager.list(setDownloadResults);
+      })();
 
       const interval = setInterval(async () => {
         await taskManager.list(setDownloadResults);

@@ -1,5 +1,5 @@
 import {test} from "@jest/globals";
-import { secondsToTimeString } from "../../../src/components/Tasks/TasksTab";
+import { secondsToTimeString } from "../../../src/components/Tasks/TaskDetails";
 
 describe('seconds to time string', () => {
 

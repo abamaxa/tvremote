@@ -26,7 +26,7 @@ type ControlButtonProps = {
   iconClass:  React.FunctionComponent<IconBaseProps>;
 }
 
-const ControlButton = (props: ControlButtonProps) => {
+export const ControlButton = (props: ControlButtonProps) => {
   const icon = React.createElement(props.iconClass, {color: "gray", className: "h-6 w-6"});
   return (
     <Button color="gray" className="border-gray-700" outline={true} pill={true} onClick={() => props.onClick()}>

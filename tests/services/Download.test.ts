@@ -8,7 +8,7 @@ test("init", async () => {
   const mockRestAdaptor = mock<RestAdaptor>();
   mockRestAdaptor.get.mockReturnValue(
     new Promise((resolve) => {
-      resolve({"results" : [{name: "test name"}]})
+      resolve({results : [{name: "test name"}]})
     }));
 
   let dm = new TaskManager(mockRestAdaptor);
