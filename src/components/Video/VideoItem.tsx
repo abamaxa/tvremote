@@ -16,7 +16,7 @@ const HIDE_DIALOG = (<></>);
 export const VideoItem = (props: VideoItemArgs) => {
 
   const classes = getClasses(props.isLast) + " text-gray-600"
-  const displayName = props.name.replaceAll(".", " ");
+  const displayName = props.name;
 
   const showDialog = (e: MouseEvent<HTMLLIElement>) => {
     e.preventDefault();

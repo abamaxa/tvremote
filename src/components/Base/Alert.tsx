@@ -67,7 +67,7 @@ export const showInfoAlert = (message: string) => {
   showAlert(message, AlertType.Information);
 }
 
-export const askQuestion = (message: string, onOk?: (() => void)) => {
+export function askQuestion(message: string, onOk?: (() => void)) {
   showAlert(message, AlertType.Question, onOk);
 }
 

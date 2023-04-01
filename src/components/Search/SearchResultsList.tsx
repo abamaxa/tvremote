@@ -2,6 +2,7 @@ import { SearchResult } from '../../domain/Messages';
 import {LI_STYLE, UL_STYLE} from "../../domain/Constants";
 import {State} from "./Reducer";
 
+
 type SearchResultsConfig = {
   results: SearchResult[];
 

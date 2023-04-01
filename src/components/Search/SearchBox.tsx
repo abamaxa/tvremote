@@ -10,9 +10,6 @@ type SearchBoxConfig = {
 }
 
 export const SearchBox = (props: SearchBoxConfig) => {
-
-  // const [engine, setEngine] = useState(SE_PIRATEBAY);
-
   const onEngineSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
     props.dispatch({type: ActionKind.ENGINE, payload: target.value});

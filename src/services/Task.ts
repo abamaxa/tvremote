@@ -1,7 +1,6 @@
 import {RestAdaptor} from "../adaptors/RestAdaptor";
-import {TaskState, SearchResult} from "../domain/Messages";
+import {TaskState, TaskListResponse, SearchResult} from "../domain/Messages";
 import {log_error, log_warning} from "./Logger";
-import { TaskListResponse } from "../domain/Messages";
 import {StatusCodes} from "../domain/Constants";
 import {askQuestion} from "../components/Base/Alert";
 
@@ -57,5 +56,4 @@ export class TaskManager implements TaskService {
       }
     });
   }
-
 }

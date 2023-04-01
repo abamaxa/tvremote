@@ -4,7 +4,6 @@ import {VideoPlayer} from "../../services/Player";
 import {VideoList} from "./VideoList";
 import {RestAdaptor} from "../../adaptors/RestAdaptor";
 import {log_error} from "../../services/Logger";
-import {TaskManager} from "../../services/Task";
 
 type VideoConfig = {
   host: RestAdaptor;
