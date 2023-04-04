@@ -1,3 +1,5 @@
+import {RestAdaptor} from "../adaptors/RestAdaptor";
+
 /**
  * Represents a message that can be sent to a remote server.
  *

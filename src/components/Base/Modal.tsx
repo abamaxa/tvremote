@@ -50,6 +50,9 @@ const Modal = (props: ModalProps) => {
 
   // Use effect to center the modal vertically and horizontally
   useEffect(() => {
+    /*
+    Centers the modal vertically and horizontally
+     */
     const element = childrenRef.current as unknown as HTMLElement;
     const height = window.innerHeight;
     const width = window.innerWidth;

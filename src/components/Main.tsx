@@ -1,23 +1,9 @@
-/**
- * @typedef HostConfig
- * @property {string} host - The host name.
- */
-
-/**
- * The initial state for the search reducer.
- * @typedef {Object} State
- * @property {string} term - The search term.
- * @property {string} engine - The search engine.
- * @property {Array} results - The search results.
- * @property {string} lastSearch - The last search term.
- */
-
 import {Button} from "flowbite-react";
 import VideoTab from "./Video/VideoTab";
 import {SearchTab} from "./Search/SearchTab";
 import {TasksTab} from "./Tasks/TasksTab";
 import {HostConfig} from "../domain/Messages";
-import React, {ReactNode, useReducer, useState} from "react";
+import React, {useReducer, useState} from "react";
 import {HiCloudDownload, HiSearch, HiVideoCamera} from "react-icons/hi";
 import {ControlBar} from "./ControlBar";
 import {VideoPlayer} from "../services/Player";
@@ -38,12 +24,13 @@ const initialState: State = {
  * The main component of the application.
  * @param {HostConfig} props - The host configuration.
  */
-export const Main = (props) => {
-  const [currentCollection, setCurrentCollection] = useState("");
-  const [activeTab, setActiveTab] = useState(0);
-  const [alertVisible, setAlertVisible] = useState(false);
+export const Main = (props: HostConfig) => {
+  const [currentCollection, setCurrentCollection] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
 
   // Use the reducer with the initial state for the search results.
+  // @ts-ignore
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const videoPlayer = new VideoPlayer(currentCollection, setCurrentCollection, props.host, "");
@@ -96,12 +83,19 @@ export const Main = (props) => {
  * @property {React.FunctionComponent} iconClass - The icon for the tab button.
  * @property {string} name - The name of the tab button.
  */
+type TabButtonProps = {
+  setActiveTab: ((tabNumber: number) => void);
+  activeTab: number;
+  tabNumber: number;
+  iconClass:  React.FunctionComponent<IconBaseProps>;
+  name: string;
+}
 
 /**
  * A component for the tab buttons.
  * @param {TabButtonProps} props - The properties of the tab button.
  */
-const TabButton = (props) => {
+const TabButton = (props: TabButtonProps) => {
   // Set the icon and button color based on the active tab.
   const iconColor = props.activeTab === props.tabNumber ? "white" : "gray";
   const buttonColor = props.activeTab === props.tabNumber ? "info" : "gray";

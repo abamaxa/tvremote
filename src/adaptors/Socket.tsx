@@ -127,7 +127,7 @@ export class SocketAdaptor {
     } catch (error) {
       // Log and throw error.
       log_error(`error ${error}, received unexpected message: ${event.data}`);
-      throw error;
+      //throw error;
     }
   }
 

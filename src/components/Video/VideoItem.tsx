@@ -1,3 +1,9 @@
+import {Dispatch, MouseEvent, SetStateAction} from "react";
+import PopupMenu from "../Base/PopupMenu";
+import {LI_STYLE} from "../../domain/Constants";
+import {Player} from "../../services/Player";
+import {ConvertModal, Modals} from "./Modals";
+
 /**
  * Describes the arguments of VideoItem component.
  * @interface VideoItemArgs
@@ -7,16 +13,14 @@
  * @property {Dispatch<SetStateAction<JSX.Element>>} setDialog - The setter function for the dialog that appears on clicking a video.
  */
 
-/**
- * Hides the dialog on closing.
- * @constant {JSX.Element} HIDE_DIALOG
- */
+type VideoItemArgs = {
+  isLast: boolean;
+  name: string;
+  videoPlayer: Player;
+  setDialog: Dispatch<SetStateAction<JSX.Element>>;
+}
 
-import {Dispatch, MouseEvent, SetStateAction} from "react";
-import PopupMenu from "../Base/PopupMenu";
-import {LI_STYLE} from "../../domain/Constants";
-import {Player} from "../../services/Player";
-import {ConvertModal, Modals} from "./Modals";
+const HIDE_DIALOG = (<></>);
 
 /**
  * A functional component that represents a single video item in the list of videos.
@@ -25,48 +29,15 @@ import {ConvertModal, Modals} from "./Modals";
  */
 export const VideoItem = (props: VideoItemArgs) => {
 
-  /**
-   * An object that contains classes for the VideoItem.
-   * @constant {string} classes
-   */
   const classes = getClasses(props.isLast) + " text-gray-600"
-
-  /**
-   * The name of the video.
-   * @constant {string} displayName
-   */
   const displayName = props.name;
 
-  /**
-   * A function that shows the popup dialog on clicking a video item.
-   * @param {MouseEvent<HTMLLIElement>} e - The mouse event object of clicking the video item.
-   * @returns {void}
-   */
   const showDialog = (e: MouseEvent<HTMLLIElement>) => {
     e.preventDefault();
 
-    /**
-     * An object that contains classes for popup menus.
-     * @constant {string} itemClass
-     */
     const itemClass = getPopupClasses(false);
-
-    /**
-     * The video player object.
-     * @constant {Player} player
-     */
-    const player = props.videoPlayer;
-
-    /**
-     * The vertical scroll position of the parent element.
-     * @constant {number} scrollTop
-     */
     const scrollTop = e.currentTarget?.parentNode?.parentElement?.parentNode?.parentElement?.scrollTop;
 
-    /**
-     * The JSX element that creates the PopupMenu component.
-     * @constant {JSX.Element} dialog
-     */
     const dialog = (
       <PopupMenu target={e.currentTarget} closeMenu={() => props.setDialog(HIDE_DIALOG)} scrollTop={scrollTop}>
         <ul>

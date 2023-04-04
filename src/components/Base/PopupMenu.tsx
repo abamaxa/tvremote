@@ -1,3 +1,5 @@
+import React, {CSSProperties, ReactNode, useEffect, useRef, useState} from "react";
+
 /**
  * Defines properties of PopupMenu component, including closeMenu(), an optional scrollTop number,
  * and the element to which the popup menu is attached

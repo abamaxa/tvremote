@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {HTTPRestAdaptor, RestAdaptor} from "../src/adaptors/RestAdaptor";
 import {Main} from "../src/components/Main";
 
-const host: RestAdaptor = new HTTPRestAdaptor();
+const host: RestAdaptor = new HTTPRestAdaptor("localhost");
 
 createLogger(host);
 

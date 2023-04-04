@@ -1,15 +1,3 @@
-/*
- * VideoEntryListArgs: object type for message entry, current collection setter and video player used in the video list component
- * entry: message entry that contains videos and child collections,
- * setCurrentCollection: callback function to set the current collection,
- * videoPlayer: player object to play the videos
- * 
- * CollectionItemArgs: object type for displaying a collection item
- * isLast: boolean to indicate whether item is the last in the collection,
- * name: name of the collection,
- * setCurrentCollection: callback function to set the current collection
- */
-
 import { VideoEntry } from "../../domain/Messages";
 import { LI_STYLE, UL_STYLE } from "../../domain/Constants";
 import { Dispatch, useState } from "react";
@@ -31,9 +19,9 @@ type CollectionItemArgs = {
 /**
  * VideoList component, used to display a list of videos and child collections
  * 
- * @param {VideoEntryListArgs} message - object containing the current message entry, current collection set function and current player
+ * @param {VideoEntryListArgs} message - object containing the current message entry, collection set function and player
  * 
- * @returns {JSX.Element} - returns a JSX element containing the video and collection items to be displated
+ * @returns {JSX.Element} - returns a JSX element containing the video and collection items to be displayed
  */
 export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
   

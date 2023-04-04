@@ -1,15 +1,10 @@
-/**
- * The Task state
- * @typedef {Object} TaskState
- * @property {string} displayName - The display name of the task
- */
+import {TaskState} from "../../domain/Messages";
+import {LI_STYLE, UL_STYLE} from "../../domain/Constants";
+import {useEffect, useState} from "react";
+import {TaskManager} from "../../services/Task";
+import {RestAdaptor} from "../../adaptors/RestAdaptor";
+import {TaskDetails} from "./TaskDetails";
 
-/**
- * The Constants used in the application
- * @typedef {Object} Constants
- * @property {string} LI_STYLE - The style definition for list item of the task list
- * @property {string} UL_STYLE - The style definition for unordered list of task list
- */
 
 /**
  * The Props for TaskTab Component
@@ -17,6 +12,10 @@
  * @property {RestAdaptor} host - The rest adaptor
  * @property {boolean} isActive - Defines if the task is active
  */
+type TaskTabProps = {
+  host: RestAdaptor;
+  isActive: boolean;
+}
 
 /**
  * Function that loads the list of TaskState and listens to any changes via web sockets
@@ -63,13 +62,6 @@ export const TasksTab = (props: TaskTabProps) => {
   }
 
  /**
- * The props for TaskList component
- * @typedef {Object} TaskListProps
- * @property {TaskState[]} results - The list of tasks to display
- * @property {((item: TaskState)=>void)} onItemClick - The click handler for task item
- */
-
- /**
  * The TaskList component that displays the task list
  * @param {TaskListProps} props - The task list props
  * @returns {JSX.Element} - The component element
@@ -81,6 +73,20 @@ export const TasksTab = (props: TaskTabProps) => {
     </div>
   )
 }
+
+
+/**
+ * The props for TaskList component
+ * @typedef {Object} TaskListProps
+ * @property {TaskState[]} results - The list of tasks to display
+ * @property {((item: TaskState)=>void)} onItemClick - The click handler for task item
+ */
+type TaskListConfig = {
+  results: TaskState[];
+
+  onItemClick: ((item: TaskState) => void);
+};
+
 
 /**
  * The TaskList component that displays the task list
@@ -100,7 +106,7 @@ const TaskList = (props: TaskListConfig) => {
 
 
     return (
-      <li className={classes} key={"search:" + idx} onClick={(e) => props.onItemClick(result)}>
+      <li className={classes} key={"search:" + idx} onClick={(_) => props.onItemClick(result)}>
         <p>{ result.displayName }</p>
         <TaskDetails result={result} index={idx} />
       </li>
