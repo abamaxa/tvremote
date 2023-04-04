@@ -1,3 +1,6 @@
+import { TaskState } from "../../domain/Messages";
+import { ReactNode } from "react";
+
 /**
  * Props for displaying the details of a task
  */

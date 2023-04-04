@@ -1,3 +1,10 @@
+import {useEffect, useState} from "react";
+import {VideoEntry} from "../../domain/Messages";
+import {VideoPlayer} from "../../services/Player";
+import {VideoList} from "./VideoList";
+import {RestAdaptor} from "../../adaptors/RestAdaptor";
+import {log_error} from "../../services/Logger";
+
 /**
  * Represents the configuration object for the VideoTab component
  * @typedef {Object} VideoConfig
@@ -5,13 +12,11 @@
  * @property {VideoPlayer} videoPlayer - The video player service used for playing videos
  * @property {boolean} isActive - Whether the VideoTab is active or not
  */
-
-import {useEffect, useState} from "react";
-import {VideoEntry} from "../../domain/Messages";
-import {VideoPlayer} from "../../services/Player";
-import {VideoList} from "./VideoList";
-import {RestAdaptor} from "../../adaptors/RestAdaptor";
-import {log_error} from "../../services/Logger";
+type VideoConfig = {
+  host: RestAdaptor;
+  videoPlayer: VideoPlayer;
+  isActive: boolean;
+}
 
 /**
  * Represents the VideoTab component
@@ -23,24 +28,18 @@ const VideoTab = (props: VideoConfig) => {
 
   // State hooks for storing video collection data and the parent collection
   const [collections, setCollection] = useState(new VideoEntry());
-  const [parentCollection, setParentCollection] = useState("");
 
-  /**
-   * Fetches video collection data and sets state hooks when component mounts
-   * @function
-   */
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data: VideoEntry = await props.videoPlayer.fetchCollection();
         setCollection(data);
-        setParentCollection(data.parent_collection);
       } catch (error) {
         log_error(error);
       }
     };
 
-    // Fetch data and set interval to refetch data periodically when component is active
+    // Fetch data and set interval to re-fetch data periodically when component is active
     if (props.isActive) {
 
       fetchData();

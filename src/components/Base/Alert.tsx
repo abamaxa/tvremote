@@ -1,3 +1,7 @@
+import {Button, Modal} from "flowbite-react";
+import {HiOutlineExclamationCircle, HiOutlineInformationCircle, HiExclamation, HiOutlineQuestionMarkCircle} from "react-icons/hi";
+import {makeString} from "../../services/Logger";
+
 /**
  * Enum representing different types of alerts.
  */
@@ -129,7 +133,7 @@ export const showInfoAlert = (message: string) => {
  * @param message - Message to be displayed in the alert box.
  * @param onOk - Callback function to be executed when the user clicks on the 'Ok' button of the alert box.
  */
-export function askQuestion(message: string, onOk?: (() => void)) {
+export const askQuestion = (message: string, onOk?: (() => void)) => {
   showAlert(message, AlertType.Question, onOk);
 }
 

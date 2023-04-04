@@ -1,22 +1,7 @@
-/**
- * Typescript module for SearchResults and SearchResultsMessage
- * @module Messages
- */
-
-/**
- * Typescript module for RestAdaptor
- * @module RestAdaptor
- */
-
-/**
- * Typescript module for Logger
- * @module Logger
- */
-
-/**
- * Typescript module for Base and Alert components
- * @module Base/Alert
- */
+import {SearchResult, SearchResultsMessage} from "../domain/Messages";
+import {RestAdaptor} from "../adaptors/RestAdaptor";
+import {log_error} from "./Logger";
+import {showInfoAlert} from "../components/Base/Alert";
 
 /**
  * setSearchResults function type for setting search results
@@ -24,6 +9,7 @@
  * @param {SearchResult[]} data - Array of SearchResult objects
  * @returns {void}
  */
+export type setSearchResults = ((data: SearchResult[]) => void);
 
 /**
  * Search interface that defines a query method
@@ -91,32 +77,18 @@ export class BaseSearch implements Search {
 }
 
 /**
- * PirateSearch class that extends BaseSearch
- * @class PirateSearch
- * @extends {BaseSearch}
+ * PirateSearch allows searching on Pirate Bay
  */
 export class PirateSearch extends BaseSearch {
-  
-  /**
-   * Constructor for PirateSearch class
-   * @param {RestAdaptor} host - The RestAdaptor for making REST API calls
-   */
   constructor(host: RestAdaptor) {
     super(host, "search/pirate?q=");
   }
 }
 
 /**
- * YoutubeSearch class that extends BaseSearch
- * @class YoutubeSearch
- * @extends {BaseSearch}
+ * YoutubeSearch class allows searching on YouTube
  */
 export class YoutubeSearch extends BaseSearch {
-  
-  /**
-   * Constructor for YoutubeSearch class
-   * @param {RestAdaptor} host - The RestAdaptor for making REST API calls
-   */
   constructor(host: RestAdaptor) {
     super(host, "search/youtube?q=");
   }

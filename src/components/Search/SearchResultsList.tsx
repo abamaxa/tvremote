@@ -1,3 +1,7 @@
+import { SearchResult } from '../../domain/Messages';
+import {LI_STYLE, UL_STYLE} from "../../domain/Constants";
+import {State} from "./Reducer";
+
 /**
  * Defines the configuration for SearchResultsList, the list of search results.
  * @typedef {Object} SearchResultsConfig
@@ -5,11 +9,13 @@
  * @property {Function} onItemClick - The function to be called when an item in the search results is clicked.
  * @property {Object} state - The current state of the application.
  */
+type SearchResultsConfig = {
+  results: SearchResult[];
 
-import { SearchResult } from '../../domain/Messages';
-import {LI_STYLE, UL_STYLE} from "../../domain/Constants";
-import {State} from "./Reducer";
+  onItemClick: ((item: SearchResult) => void);
 
+  state: State;
+}
 
 /**
  * Defines the style for the search results list.

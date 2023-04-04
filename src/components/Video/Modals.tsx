@@ -2,10 +2,9 @@
  * Typescript module that exports two React components VideoModal and ConvertModal
  * @module Modals
  */
-
 import React, { useEffect, useState } from "react";
 import { showWarningAlert } from "../Base/Alert";
-import { Button, Label, Radio, Select, TextInput } from "flowbite-react";
+import { Button, Label, Radio, TextInput } from "flowbite-react";
 import Modal from "../Base/Modal";
 import { Player } from "../../services/Player";
 import { Conversion } from "../../domain/Messages";
