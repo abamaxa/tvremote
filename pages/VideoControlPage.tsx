@@ -27,50 +27,84 @@ const VideoControlPage = (props: VideoControlProps) => {
 
         } else if (message.TogglePause !== undefined && videoControlRef !== null) {
           const vc = videoControlRef.current as unknown as HTMLVideoElement;
-          if (vc.paused) {
-            vc.play().catch(err => {
-              log_warning(err.message);
-            })
-          } else {
-            vc.pause();
-          }
+          togglePause(vc);
         }
       }
     );
 
   }, [props.host])
 
-  const playFullScreen = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+  /*const playFullScreen = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video: HTMLVideoElement = e.currentTarget;
     video.requestFullscreen().then(r => log_info(`requestFullscreen: ${r}`)).catch(r => log_info(`failed: ${r}`));
     video.className ="w-full";
+  }*/
+
+  const togglePause = (vc: HTMLVideoElement) => {
+    if (vc.paused) {
+      vc.play().catch(err => {
+        log_warning(err.message);
+      })
+    } else {
+      vc.pause();
+    }
+  };
+
+  const onClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const vc = e.currentTarget as unknown as HTMLVideoElement;
+    // const vc = videoControlRef.current as unknown as HTMLVideoElement;
+    togglePause(vc);
   }
 
   const getNextVideo = (_: React.SyntheticEvent<HTMLVideoElement>) => {
     log_info("getNextVideo called");
   }
 
+  const logVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const error = (e.target as HTMLVideoElement).error;
+    if (error) {
+      log_info(`Video error: ${error.message}`);
+    }
+  }
+
+  const onKeyPressed = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    log_info(`keyPress: ${e.key}, code: ${e.code}`);
+  }
+
   if (currentVideo != "") {
+    // onClick={e => onClick(e)}
     return (
-      <div className="bg-black h-screen w-screen">
-        <video
-          className="h-screen m-auto"
-          onLoadedMetadata={e => playFullScreen(e)}
-          onEnded={e => getNextVideo(e)}
-          style={{objectFit: "contain"}}
-          id="video"
-          autoPlay={true}
-          controls
-          muted={false}
-          playsInline={false}
-          src={currentVideo}
-          ref={videoControlRef}
-        >
-        </video>
-      </div>
+      <>
+        <div
+          className="absolute top-0 left-0 h-screen w-screen bg-transparent z-10"
+          onClick={e => togglePause(videoControlRef.current as unknown as HTMLVideoElement)}
+          onKeyUp={e => onKeyPressed(e)}
+        ></div>
+        <div className="bg-black h-screen w-screen">
+          <video
+            className="m-auto w-full h-screen object-contain overflow-hidden"
+            onEnded={e => getNextVideo(e)}
+            onError={e => logVideoError(e)}
+            id="video"
+            autoPlay={true}
+            controls
+            muted={false}
+            playsInline={false}
+            src={currentVideo}
+            ref={videoControlRef}
+          >
+          </video>
+        </div>
+      </>
     )
   } else {
-    return (<p>Waiting for video to be selected</p>)
+    return (
+      <h1 className="text-6xl text-white bg-black text-center h-screen py-32">
+        Ready
+      </h1>
+    )
   }
 };
 

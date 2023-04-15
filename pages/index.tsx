@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {HTTPRestAdaptor, RestAdaptor} from "../src/adaptors/RestAdaptor";
 import {Main} from "../src/components/Main";
 
-const host: RestAdaptor = new HTTPRestAdaptor("localhost");
+const host: RestAdaptor = new HTTPRestAdaptor("coco.abamaxa.com");
 
 createLogger(host);
 
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
-    if (userAgent.includes("SMART-TV")) {
+    if (userAgent.includes("Firefox") || userAgent.includes("SMART-TV") || userAgent.includes("SmartTV")) {
       setMode(Mode.Video)
     } else {
       setMode(Mode.Remote)
