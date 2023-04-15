@@ -76,15 +76,9 @@ const VideoControlPage = (props: VideoControlProps) => {
   if (currentVideo != "") {
     // onClick={e => onClick(e)}
     return (
-      <>
-        <div
-          className="absolute top-0 left-0 h-screen w-screen bg-transparent z-10"
-          onClick={e => togglePause(videoControlRef.current as unknown as HTMLVideoElement)}
-          onKeyUp={e => onKeyPressed(e)}
-        ></div>
         <div className="bg-black h-screen w-screen">
           <video
-            className="m-auto w-full h-screen object-contain overflow-hidden"
+            className="m-auto w-full h-screen object-contain outline-0"
             onEnded={e => getNextVideo(e)}
             onError={e => logVideoError(e)}
             id="video"
@@ -97,7 +91,6 @@ const VideoControlPage = (props: VideoControlProps) => {
           >
           </video>
         </div>
-      </>
     )
   } else {
     return (
