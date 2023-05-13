@@ -1,13 +1,13 @@
-import { VideoEntry } from "../../domain/Messages";
+import {CollectionDetails} from "../../domain/Messages";
 import { LI_STYLE, UL_STYLE } from "../../domain/Constants";
-import { Dispatch, useState } from "react";
 import { Player } from "../../services/Player";
-import { VideoItem } from "./VideoItem";
+import {VideoItem} from "./VideoItem";
 
 type VideoEntryListArgs = {
-  entry: VideoEntry;
+  entry: CollectionDetails;
   setCurrentCollection: (collection: string) => void;
   videoPlayer: Player;
+  setVideoDetails: (name: string) => void;
 }
 
 type CollectionItemArgs = {
@@ -24,8 +24,6 @@ type CollectionItemArgs = {
  * @returns {JSX.Element} - returns a JSX element containing the video and collection items to be displayed
  */
 export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
-  
-  const [dialog, setDialog] = useState<JSX.Element>((<></>));
   const lastCollection = message.entry.child_collections.length - 1;
   const lastVideo = message.entry.videos.length - 1;
 
@@ -60,14 +58,13 @@ export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
         isLast={index === lastVideo}
         name={name}
         videoPlayer={message.videoPlayer}
-        setDialog={setDialog as Dispatch<any>}
+        setVideoDetails={message.setVideoDetails}
       />
     );
   });
 
   return (
     <>
-      {dialog}
       <ul className={UL_STYLE}>
         {back_button}
         {child_collections}

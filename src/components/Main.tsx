@@ -1,16 +1,16 @@
-import {Button} from "flowbite-react";
 import VideoTab from "./Video/VideoTab";
 import {SearchTab} from "./Search/SearchTab";
 import {TasksTab} from "./Tasks/TasksTab";
-import {HostConfig} from "../domain/Messages";
-import React, {useReducer, useState} from "react";
-import {HiCloudDownload, HiSearch, HiVideoCamera} from "react-icons/hi";
-import {ControlBar} from "./ControlBar";
+import {HostConfig, RemoteMessage} from "../domain/Messages";
+import React, {useEffect, useReducer, useState} from "react";
 import {VideoPlayer} from "../services/Player";
 import {Alert, gAlertManager} from "./Base/Alert";
+import { CardModal } from "./Base/Modal"
 import {SE_PIRATEBAY} from "../domain/Constants";
 import {reducer, State} from "./Search/Reducer"
-import {IconBaseProps} from "react-icons";
+import {SocketAdaptor} from "../adaptors/Socket";
+import {VideoItemDetail} from "./Video/VideoDetail";
+import {SpeedDialer} from "./SpeedDialer";
 
 // The initial state for the search reducer.
 const initialState: State = {
@@ -20,14 +20,25 @@ const initialState: State = {
   lastSearch: "",
 }
 
+enum CardNames {
+  Videos,
+  CurrentVideo,
+  Search,
+  Tasks,
+  VideoDetail,
+}
+
 /**
  * The main component of the application.
  * @param {HostConfig} props - The host configuration.
  */
 export const Main = (props: HostConfig) => {
   const [currentCollection, setCurrentCollection] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeCard, setActiveCard] = useState<CardNames>(CardNames.Videos);
   const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [lastMessage, setLastMessage] = useState<RemoteMessage>();
+  const [dialog, setDialog] = useState<JSX.Element>((<></>));
+  const [videoName, setVideoName] = useState<string | null>(null);
 
   // Use the reducer with the initial state for the search results.
   // @ts-ignore
@@ -35,84 +46,99 @@ export const Main = (props: HostConfig) => {
 
   const videoPlayer = new VideoPlayer(currentCollection, setCurrentCollection, props.host, "");
 
+  useEffect(() => {
+    const host = props.host.getHost() ? props.host.getHost() : location.host;
+    new SocketAdaptor(
+      () => new WebSocket(`ws://${host}/api/control/ws`),
+      (message: RemoteMessage) => {
+        setLastMessage(message);
+      }
+    );
+  }, [props.host]);
+
+  const showVideoDetails = (name: string) => {
+    setVideoName(name);
+    setActiveCard(CardNames.VideoDetail);
+  }
+
   // Determine which component to render based on the active tab.
-  const mainComponent = (() => {
-    switch (activeTab) {
-      case 1:
-        return (<SearchTab host={props.host} state={state} dispatch={dispatch} />);
-      case 2:
-        return (<TasksTab host={props.host} isActive={true} />);
-      default:
-        return (<VideoTab host={props.host} videoPlayer={videoPlayer} isActive={true} />);
+  const getMainCard = () => {
+    const onClose = () => setActiveCard(CardNames.Videos);
+
+    switch (activeCard) {
+      case CardNames.Search:
+        return (
+          <CardModal title={"Search"} onClose={onClose}>
+            <SearchTab host={props.host} state={state} dispatch={dispatch} />
+          </CardModal>
+        );
+
+      case CardNames.Tasks:
+        return (
+          <CardModal title="Running Tasks" onClose={onClose}>
+            <TasksTab host={props.host} isActive={true} />
+          </CardModal>
+        );
+
+      case CardNames.CurrentVideo:
+        return (
+          <CardModal title="Current Video" onClose={onClose}>
+            <VideoItemDetail player={videoPlayer} setDialog={setDialog} lastMessage={lastMessage} />
+          </CardModal>
+        );
+
+      case CardNames.VideoDetail:
+        if (videoName !== null) {
+          const onClose = () => {
+            setVideoName(null);
+            setActiveCard(CardNames.Videos);
+          }
+
+          return (
+            <CardModal title="Video Details" onClose={onClose}>
+              <VideoItemDetail
+                video={videoName}
+                collection={currentCollection}
+                setDialog={setDialog}
+                back={() => setVideoName(null)}
+                player={videoPlayer}
+                lastMessage={lastMessage}
+              />
+            </CardModal>
+          );
+        }
     }
-  })();
+
+    return (<></>);
+  };
 
   // Set the alert visibility state based on the global alert manager.
   gAlertManager.setStateFunction(setAlertVisible);
 
   return (
-    <div className="flex flex-col h-fill-viewport w-full">
+    <div className="lg:container lg:mx-auto flex flex-col h-fill-viewport w-full">
       {/* Render the global alert component. */}
       <Alert show={alertVisible}/>
-      
-      {/* Render the tab buttons */}
-      <div className="flex flex-row flex-wrap items-center p-1 w-full">
-        <TabButton name="Play" tabNumber={0} activeTab={activeTab} setActiveTab={setActiveTab} iconClass={HiVideoCamera} />
-        <TabButton name="Find" tabNumber={1} activeTab={activeTab} setActiveTab={setActiveTab} iconClass={HiSearch} />
-        <TabButton name="Tasks" tabNumber={2} activeTab={activeTab} setActiveTab={setActiveTab} iconClass={HiCloudDownload} />
-      </div>
-      
+
+      { getMainCard() }
+
+      { dialog }
+
       {/* Render the selected main component*/}
-      <div className="mb-auto p-1 overflow-y-auto">
-        { mainComponent }
+      <div className="p-1 overflow-y-auto">
+        <VideoTab
+          videoPlayer={videoPlayer}
+          isActive={activeCard === CardNames.Videos}
+          showVideoDetails={showVideoDetails}
+        />
       </div>
-      
-      {/* Render the video player control bar */}
-      <ControlBar player={videoPlayer} />
-      
+
+      <SpeedDialer
+        lastMessage={lastMessage}
+        showCurrentVideo={() => setActiveCard(CardNames.CurrentVideo)}
+        showSearch={() => setActiveCard(CardNames.Search)}
+        showTasks={() => setActiveCard(CardNames.Tasks)}
+      />
     </div>
-  )
-}
-
-/**
- * The props for the tab button components.
- * @typedef {Object} TabButtonProps
- * @property {function} setActiveTab - A callback function to set the active tab.
- * @property {number} activeTab - The current active tab number.
- * @property {number} tabNumber - The tab button number.
- * @property {React.FunctionComponent} iconClass - The icon for the tab button.
- * @property {string} name - The name of the tab button.
- */
-type TabButtonProps = {
-  setActiveTab: ((tabNumber: number) => void);
-  activeTab: number;
-  tabNumber: number;
-  iconClass:  React.FunctionComponent<IconBaseProps>;
-  name: string;
-}
-
-/**
- * A component for the tab buttons.
- * @param {TabButtonProps} props - The properties of the tab button.
- */
-const TabButton = (props: TabButtonProps) => {
-  // Set the icon and button color based on the active tab.
-  const iconColor = props.activeTab === props.tabNumber ? "white" : "gray";
-  const buttonColor = props.activeTab === props.tabNumber ? "info" : "gray";
-
-  // Create the icon element.
-  const icon = React.createElement(props.iconClass, {color: iconColor, className: "mr-2 h-4 w-4"});
-
-  return (
-    <Button
-      color={buttonColor}
-      size="sm"
-      outline={false}
-      className="grow"
-      onClick={() => props.setActiveTab(props.tabNumber)}
-    >
-      {icon}
-      {' '}{props.name}
-    </Button>
   )
 }

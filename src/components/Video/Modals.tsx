@@ -65,7 +65,7 @@ export const Modals = (props: VideoModalProps): JSX.Element => {
   }
 
   return (
-    <Modal closeMenu={props.onClose}>
+    <Modal onClose={props.onClose}>
       <div className="p-4">
         <div className="mb-2">
           <div className="mb-2 block">
@@ -173,7 +173,7 @@ export const ConvertModal = (props: VideoModalProps): JSX.Element => {
   });
 
   return (
-    <Modal closeMenu={props.onClose}>
+    <Modal onClose={props.onClose}>
       <div className="p-4">
         <div className="mb-2">
           <div className="mb-2 block">

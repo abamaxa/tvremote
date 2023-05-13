@@ -29,7 +29,7 @@ describe("VideoItem", () => {
         name={name}
         isLast={isLast}
         videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
+        setVideoDetails={mockSetDialog}
       />
     );
 
@@ -44,7 +44,7 @@ describe("VideoItem", () => {
         name={name}
         isLast={isLast}
         videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
+        setVideoDetails={mockSetDialog}
       />
     ));
 
@@ -53,97 +53,4 @@ describe("VideoItem", () => {
     expect(mockSetDialog).toHaveBeenCalled();
   });
 
-  test("calls playVideo when Play is clicked", async () => {
-    const name = "example.mp4";
-    const isLast = false;
-    const videoList = (
-      <VideoItem
-        name={name}
-        isLast={isLast}
-        videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
-      />
-    );
-
-    const {getByText} = await waitFor(() => render(videoList));
-
-    fireEvent.click(getByText(name));
-
-    const {findByText} = await waitFor(() => render(savedPopup));
-
-    const playButton = await findByText("Play");
-
-    fireEvent.click(playButton);
-
-    expect(mockVideoPlayer.playVideo).toHaveBeenCalledWith(name);
-  });
-
-  test("calls deleteVideo when Delete is clicked", async () => {
-    const name = "example.mp4";
-    const isLast = false;
-    const {getByText} = await waitFor(() => render(
-      <VideoItem
-        name={name}
-        isLast={isLast}
-        videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
-      />
-    ));
-
-    fireEvent.click(getByText(name));
-
-    const {findByText} = await waitFor(() => render(savedPopup));
-
-    const deleteButton = await findByText("Delete");
-
-    fireEvent.click(deleteButton);
-
-    expect(mockVideoPlayer.deleteVideo).toHaveBeenCalledWith(name);
-  });
-
-  test("opens Rename modal when Rename is clicked", async () => {
-    const name = "example2.mp4";
-    const isLast = false;
-    const {getByText} = await waitFor(() => render(
-      <VideoItem
-        name={name}
-        isLast={isLast}
-        videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
-      />
-    ));
-
-    fireEvent.click(getByText(name));
-
-    const {findByText} = await waitFor(() => render(savedPopup));
-
-    const renameButton = await findByText("Rename");
-
-    fireEvent.click(renameButton);
-
-    expect(mockSetDialog).toHaveBeenCalled();
-  });
-
-  test("opens Convert modal when Convert is clicked", async () => {
-    const name = "example.mp4";
-    const isLast = false;
-    const {getByText} = await waitFor(() => render(
-      <VideoItem
-        name={name}
-        isLast={isLast}
-        videoPlayer={mockVideoPlayer}
-        setDialog={mockSetDialog}
-      />
-    ));
-
-    fireEvent.click(getByText(name));
-
-    const {findByText} = await waitFor(() => render(savedPopup));
-
-    const convertButton = await findByText("Convert...");
-
-    fireEvent.click(convertButton);
-
-    expect(mockSetDialog).toHaveBeenCalled();
-  });
 });

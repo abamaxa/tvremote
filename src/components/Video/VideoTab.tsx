@@ -1,22 +1,22 @@
-import {useEffect, useState} from "react";
-import {VideoEntry} from "../../domain/Messages";
+import { useEffect, useState} from "react";
+import {CollectionDetails, MediaDetails} from "../../domain/Messages";
 import {VideoPlayer} from "../../services/Player";
 import {VideoList} from "./VideoList";
-import {RestAdaptor} from "../../adaptors/RestAdaptor";
 import {log_error} from "../../services/Logger";
 
 /**
  * Represents the configuration object for the VideoTab component
  * @typedef {Object} VideoConfig
- * @property {RestAdaptor} host - The REST adaptor for fetching video collections
  * @property {VideoPlayer} videoPlayer - The video player service used for playing videos
  * @property {boolean} isActive - Whether the VideoTab is active or not
  */
-type VideoConfig = {
-  host: RestAdaptor;
+export type VideoConfig = {
   videoPlayer: VideoPlayer;
   isActive: boolean;
+  showVideoDetails: (name: string) => void;
 }
+
+export const REFRESH_INTERVAL: number = 200000;
 
 /**
  * Represents the VideoTab component
@@ -27,13 +27,15 @@ type VideoConfig = {
 const VideoTab = (props: VideoConfig) => {
 
   // State hooks for storing video collection data and the parent collection
-  const [collections, setCollection] = useState(new VideoEntry());
+  const [collections, setCollection] = useState(new CollectionDetails());
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data: VideoEntry = await props.videoPlayer.fetchCollection();
-        setCollection(data);
+        const mediaDetails: MediaDetails = await props.videoPlayer.fetchDetails();
+        if (mediaDetails.Collection) {
+          setCollection(mediaDetails.Collection);
+        }
       } catch (error) {
         log_error(error);
       }
@@ -46,7 +48,7 @@ const VideoTab = (props: VideoConfig) => {
 
       const interval = setInterval(async () => {
         await fetchData()
-      }, 2000);
+      }, REFRESH_INTERVAL);
 
       // Clear interval when component is unmounted
       return () => clearInterval(interval);
@@ -60,6 +62,7 @@ const VideoTab = (props: VideoConfig) => {
         <VideoList
           entry={collections}
           setCurrentCollection={props.videoPlayer.setCurrentCollection}
+          setVideoDetails={props.showVideoDetails}
           videoPlayer={props.videoPlayer}
         />
       </main>

@@ -7,7 +7,7 @@ import React, {CSSProperties, ReactNode, useEffect, useRef, useState} from "reac
 type PopupMenuProps = {
   closeMenu: () => void;
   children: ReactNode;
-  target: HTMLElement;
+  target?: HTMLElement;
   scrollTop?: number;
 };
 
@@ -33,14 +33,21 @@ const PopupMenu = (props: PopupMenuProps) => {
    */
   const childrenRef = useRef(null);
 
+  const target = props.target ? props.target : {
+    offsetTop: 200,
+    offsetLeft: 0,
+    clientWidth: screen.width * 0.9,
+    clientHeight: screen.height,
+  };
+
   /**
    * Sets the style of the popup menu to position it next to the target element
    */
   const [popupStyle, setPopupStyle] = useState({
     position: "absolute",
-    width: `${props.target.clientWidth + 4}px`,
-    top: `${props.target.offsetTop + props.target.clientHeight - (props.scrollTop !== undefined ? props.scrollTop : 0) - 4}px`,
-    left: `${props.target.offsetLeft - 2}px`,
+    width: `${target.clientWidth + 4}px`,
+    top: `${target.offsetTop + target.clientHeight - (props.scrollTop !== undefined ? props.scrollTop : 0) - 4}px`,
+    left: `${target.offsetLeft - 2}px`,
   } as CSSProperties);
 
   /**
@@ -57,16 +64,16 @@ const PopupMenu = (props: PopupMenuProps) => {
    */
   useEffect(() => {
     const element = childrenRef.current as unknown as HTMLElement;
-    const top = props.target.offsetTop - (props.scrollTop !== undefined ? props.scrollTop : 0);
-    if (element.clientHeight + top + props.target.clientHeight > window.innerHeight) {
+    const top = target.offsetTop - (props.scrollTop !== undefined ? props.scrollTop : 0);
+    if (element.clientHeight + top +target.clientHeight > window.innerHeight) {
       setPopupStyle({
         position: "absolute",
-        width: `${props.target.clientWidth + 4}px`,
+        width: `${target.clientWidth + 4}px`,
         top: `${top - element.clientHeight + 4}px`,
-        left: `${props.target.offsetLeft - 2}px`,
+        left: `${target.offsetLeft - 2}px`,
       });
     }
-  }, [props.scrollTop, props.target.clientHeight, props.target.clientWidth, props.target.offsetLeft, props.target.offsetTop]);
+  }, [props.scrollTop, target.clientHeight, target.clientWidth, target.offsetLeft, target.offsetTop]);
 
   /**
    * Styles the overlay div element as a fullscreen darkening layer

@@ -23,7 +23,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
-    if (userAgent.includes("SMART-TV") || userAgent.includes("SmartTV")) {
+    if (!userAgent.includes("Firefox") || userAgent.includes("SMART-TV") || userAgent.includes("SmartTV")) {
       setMode(Mode.Video)
     } else {
       setMode(Mode.Remote)

@@ -29,15 +29,15 @@ describe("HTTPRestAdaptor", () => {
   });
 
   it("should make URL with host", () => {
-    const path = "api/tasks";
-    const expectedUrl = `http://${mockHost}/${path}`;
+    const path = "tasks";
+    const expectedUrl = `http://${mockHost}/api/${path}`;
     expect(restAdaptor.makeUrl(path)).toEqual(expectedUrl);
   });
 
   it("should make URL without host", () => {
-    const path = "api/tasks";
+    const path = "tasks";
     restAdaptor = new HTTPRestAdaptor();
-    const expectedUrl = `/${path}`;
+    const expectedUrl = `/api/${path}`;
     expect(restAdaptor.makeUrl(path)).toEqual(expectedUrl);
   });
 
@@ -51,10 +51,10 @@ describe("HTTPRestAdaptor", () => {
       })
     );
 
-    const path = "api/tasks/1";
+    const path = "tasks/1";
     const data = await restAdaptor.get(path);
     expect(global.fetch).toHaveBeenCalledWith(
-      `http://${mockHost}/${path}`
+      `http://${mockHost}/api/${path}`
     );
     expect(data).toEqual(mockData);
   });
@@ -62,10 +62,10 @@ describe("HTTPRestAdaptor", () => {
   it("should send data to server with POST request", async () => {
     const mockPayload = {name: "New Task"};
 
-    const path = "api/tasks";
+    const path = "tasks";
     const response = await restAdaptor.post(path, mockPayload);
     expect(global.fetch).toHaveBeenCalledWith(
-      `http://${mockHost}/${path}`,
+      `http://${mockHost}/api/${path}`,
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify(mockPayload),
@@ -80,10 +80,10 @@ describe("HTTPRestAdaptor", () => {
       status: 200,
     } as Response);
 
-    const path = "api/tasks/1";
+    const path = "tasks/1";
     const response = await restAdaptor.put(path, mockPayload);
     expect(global.fetch).toHaveBeenCalledWith(
-      `http://${mockHost}/${path}`,
+      `http://${mockHost}/api/${path}`,
       expect.objectContaining({
         method: "PUT",
         body: JSON.stringify(mockPayload),
@@ -93,10 +93,10 @@ describe("HTTPRestAdaptor", () => {
   });
 
   it("should delete data on server with DELETE request", async () => {
-    const path = "api/tasks/1";
+    const path = "tasks/1";
     const response = await restAdaptor.delete(path);
     expect(global.fetch).toHaveBeenCalledWith(
-      `http://${mockHost}/${path}`,
+      `http://${mockHost}/api/${path}`,
       expect.objectContaining({
         method: "DELETE",
       })

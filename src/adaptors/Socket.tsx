@@ -6,7 +6,7 @@ import {string} from "prop-types";
 import {RemoteMessage} from "../domain/Messages";
 
 /**
- * The type of a function callback that executes when a message is received from the server.
+ * The type of function callback that executes when a message is received from the server.
  */
 type onMessageCallback = ((message: RemoteMessage) => void);
 
@@ -86,12 +86,33 @@ export class SocketAdaptor {
   }
 
   /**
+   * Sends a string to the remote server.
+   * @param message - The message to send.
+   */
+  send_string = (message: string) => {
+    if (this.socket !== undefined && this.open) {
+      this.socket.send(message);
+    }
+  }
+
+  /**
    * Sends a message to the remote server.
    * @param message - The message to send.
    */
-  send = (message: string | Blob) => {
+  send = <T,>(message: T) => {
     if (this.socket !== undefined && this.open) {
-      this.socket.send(message);
+      // Serialize the object as a JSON string
+      const jsonString = JSON.stringify(message);
+
+      // Convert the JSON string to a Blob
+      const blob = new Blob([jsonString], { type: "application/json" });
+
+      try {
+        this.socket.send(blob);
+      } catch (error) {
+        this._reconnect();
+        this.socket.send(blob);
+      }
     }
   }
 
@@ -119,7 +140,6 @@ export class SocketAdaptor {
     try {
       // Convert response to text.
       const txt = await new Response(event.data).text();
-      log_info(`onReceive: ${txt}`);
       // Parse JSON data.
       let data = JSON.parse(txt);
       // Execute callback with parsed data.
@@ -137,5 +157,13 @@ export class SocketAdaptor {
    */
   isReady = ():boolean => {
     return (this.socket !== undefined && this.open);
+  }
+
+  _reconnect = () => {
+    if (SocketAdaptor.socketBuilder) {
+      this.close();
+      this.socket = SocketAdaptor.socketBuilder();
+      this.addListeners();
+    }
   }
 }
