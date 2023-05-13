@@ -56,18 +56,23 @@ export class SocketAdaptor {
       const self = this;
 
       // Sends a message when the WebSocket is opened.
-      this.socket.addEventListener('open', (_) => {
+      this.socket.onopen = () => {
         console.log("open websocket event");
         if (self.socket !== undefined) {
           self.socket.send('Hello Server!');
         }
         self.open = true;
-      });
+      };
+
+      this.socket.onerror = (error) => {
+        console.log(`WebSocket encountered error: ${JSON.stringify(error)}, closing socket`);
+        setTimeout(self._reconnect, 5000);
+      };
 
       // Parses a message when one is received.
-      this.socket.addEventListener('message', function (event) {
+      this.socket.onmessage = (event) => {
         self.onReceive(event).catch(err => log_info(`onReceive exception: ${err}`));
-      });
+      }
     }
   }
 
@@ -78,7 +83,12 @@ export class SocketAdaptor {
    */
   close = (code?: number | undefined, reason?: string | undefined) => {
     if (this.socket !== undefined) {
-      this.socket.close(code, reason);
+      try {
+        this.socket.close(code, reason);
+      } catch {
+        // ignore any errors from attempting to close the socket.
+      }
+
       this.socket = undefined;
       this.open = false;
       this.listening = false;
@@ -161,9 +171,13 @@ export class SocketAdaptor {
 
   _reconnect = () => {
     if (SocketAdaptor.socketBuilder) {
-      this.close();
-      this.socket = SocketAdaptor.socketBuilder();
-      this.addListeners();
+      try {
+        this.close();
+        this.socket = SocketAdaptor.socketBuilder();
+        this.addListeners();
+      } catch (error) {
+        console.log(`reconnecting websocket: ${error}`);
+      }
     }
   }
 }

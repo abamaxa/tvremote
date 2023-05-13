@@ -5,7 +5,7 @@ module.exports = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://coco.abamaxa.com/api/:path*',
+        destination: 'http://higo.abamaxa.com/api/:path*',
       },
     ]
   },
