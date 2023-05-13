@@ -38,7 +38,7 @@ export const SpeedDialer = (props: SpeedDialerProps) => {
         <HiCloudDownload color="white" className={iconClasses} />
       </div>
       <div className={buttonClasses} onClick={() => props.showSearch()}>
-        <HiSearch color="white" className={iconClasses} />
+        <HiSearch color="white"  className={iconClasses} />
       </div>
       <div className={videoButtonClasses} onClick={() => props.showCurrentVideo()}>
         { videoIcon }

@@ -2,10 +2,11 @@ import { Player } from "../../services/Player";
 import {Dropdown, Progress} from "flowbite-react";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {ConvertModal, Modals} from "./Modals";
-import {RemoteMessage, VideoDetails} from "../../domain/Messages";
-import {secondsToTimeString} from "../../services/helpers";
+import {RemoteMessage} from "../../domain/Messages";
+import {secondsToHMSString, secondsToTimeString} from "../../services/helpers";
 import {ControlBar} from "../ControlBar";
 import {log_error} from "../../services/Logger";
+import {VideoDetailsImpl} from "../../domain/Models";
 
 const HIDE_DIALOG = (<></>);
 
@@ -66,11 +67,11 @@ class VideoPropsWrapper {
     return "???";
   }
 
-  getDetails = async (): Promise<VideoDetails | null> => {
+  getDetails = async (): Promise<VideoDetailsImpl | null> => {
     try {
       let result = await this.player.fetchDetails(this.name(), this.getCollection());
       if (result.Video !== undefined) {
-        return result.Video;
+        return new VideoDetailsImpl(result.Video);
       }
     } catch (error) {
       log_error(error);
@@ -91,13 +92,13 @@ class VideoPropsWrapper {
 }
 
 export const VideoItemDetail = (_props: VideoDetailProps) => {
-  const [videoDetails, setVideoDetails] = useState<VideoDetails | null>(null);
+  const [videoDetails, setVideoDetails] = useState<VideoDetailsImpl | null>(null);
   const props = new VideoPropsWrapper(_props);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const details: VideoDetails | null = await props.getDetails();
+        const details: VideoDetailsImpl | null = await props.getDetails();
         setVideoDetails(details);
       } catch (error) {
         log_error(error);
@@ -106,38 +107,21 @@ export const VideoItemDetail = (_props: VideoDetailProps) => {
 
     fetchData();
 
-  }, [_props.player, _props.video, _props.collection]);
+  }, [_props.video, _props.collection]);
 
-  const getDescription = () => {
-    const duration = videoDetails?.metadata.duration;
-    const durationStr = secondsToTimeString(duration ? duration : 0);
-    return (
-      <>
-        <p>{`Duration: ${durationStr}`}</p>
-        <p>{`Size: ${videoDetails?.metadata.width}x${videoDetails?.metadata.height}`}</p>
-      </>
-    );
-  }
-
-  let description;
-  if (props.showProgress()) {
-    description = (
-      <PlayerProgress message={props.lastMessage} />
-    );
-  } else {
-    description = (
-      <p className="mb-3 font-medium text-gray-700 dark:text-gray-400">
-        {getDescription()}
-      </p>
-    );
-  }
+  const description = () => {
+    if (props.showProgress()) {
+      return (<PlayerProgress message={props.lastMessage} />);
+    }
+    return getDescription(videoDetails);
+  };
 
   return(
     <div className="max-w-screen-md border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <div className="p-2">
         <a href="#">
           <img
-            className="mx-auto object-cover h-full w-48 rounded-lg"
+            className="mx-auto object-cover h-full w-52 rounded-lg"
             src={`/api/thumbnails/${videoDetails?.thumbnail}`}
             alt={`image from ${props.name()}`}
           />
@@ -152,13 +136,37 @@ export const VideoItemDetail = (_props: VideoDetailProps) => {
               {props.name()}
             </h5>
           </a>
-          { description }
+
+          <div className="mb-3 font-medium text-sm text-gray-700 dark:text-gray-400">
+          { description() }
+          </div>
         </div>
       </div>
       {/* Render the video player control bar */}
       <ControlBar player={props.player} video={props.video} />
     </div>
   )
+}
+
+
+const getDescription = (videoDetails: VideoDetailsImpl | null) => {
+
+  try {
+    return (
+      <div>
+        <p>Duration: {videoDetails?.getDuration() || "?"}</p>
+        <p>Size: {videoDetails?.getSize() || "?"}</p>
+      </div>
+    );
+  } catch(error) {
+    log_error(error);
+    return (
+      <div>
+        { JSON.stringify(error) }
+      </div>
+    )
+  }
+
 }
 
 /*
@@ -176,25 +184,20 @@ export const PlayerProgress = (props: {message?: RemoteMessage}) => {
   }
 
   const percent_done = playerState.currentTime * 100 / playerState.duration;
-  const time_str = secondsToTimeString(playerState.currentTime);
-  const duration_str = secondsToTimeString(playerState.duration);
+  const time_str = secondsToHMSString(playerState.currentTime);
+  const duration_str = secondsToHMSString(playerState.duration);
   const progress =  `${ time_str } / ${ duration_str }`;
 
   return (
-    <Progress
-      textLabel={progress}
-      labelText={true}
-      textLabelPosition="outside"
-      progress={percent_done}
-    />);
+    <div className="flex flex-col">
+      <p className="mb-2">{progress}</p>
+      <Progress labelText={false} progress={percent_done} />
+    </div>);
 }
 
 export const VideoMenu = (props: VideoPropsWrapper) => {
   return (
     <Dropdown label="..."  placement="left-start" arrowIcon={false} inline={true}>
-      <Dropdown.Item onClick={() => playVideo(props)}>
-        Play
-      </Dropdown.Item>
       <Dropdown.Item onClick={() => showRenameModal(props)}>
         Rename
       </Dropdown.Item>
