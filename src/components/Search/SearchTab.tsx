@@ -85,7 +85,7 @@ export const SearchTab = (props: SearchTabProps) => {
   }
 
   return (
-    <div className="p-0">
+    <div className="flex flex-col p-0">
       <SearchBox doSearch={doSearch} state={props.state} dispatch={props.dispatch}/>
       <SearchResultsList state={props.state} results={searchResults} onItemClick={onItemClick}/>
     </div>

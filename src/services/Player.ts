@@ -5,7 +5,7 @@ import {
   GeneralResponse,
   RemoteCommand,
   RemoteMessage, RenameRequest,
-  VideoEntry
+  CollectionDetails, MediaDetails
 } from "../domain/Messages";
 import {log_error} from "./Logger";
 import {showInfoAlert, askQuestion} from "../components/Base/Alert";
@@ -17,7 +17,7 @@ import {StatusCodes} from "../domain/Constants";
  */
 export interface Player {
   playVideo: (video: string) => void;
-  fetchCollection: () => Promise<VideoEntry>;
+  fetchDetails: (video? :string, collection?: string) => Promise<MediaDetails>;
   seek: ((interval: number) => void);
   togglePause: (() => void);
   setCurrentCollection: ((newCollection: string) => void);
@@ -216,10 +216,21 @@ export class VideoPlayer implements Player {
   /**
    * @method fetchCollection
    * Fetches the current video collection from the server
-   * @returns {Promise<VideoEntry>} A promise that contains the fetch video collection data
+   * @returns {Promise<CollectionDetails>} A promise that contains the fetch video collection data
    */
-  fetchCollection = async (): Promise<VideoEntry> => {
-    const path = this.currentCollection ? "media/" + this.currentCollection : "media";
+  fetchDetails = async (video? :string, collection?: string): Promise<MediaDetails> => {
+    let path: string = "media";
+
+    if (typeof collection !== undefined && collection) {
+      path += "/" + collection;
+    } else if (this.currentCollection) {
+      path += "/" + this.currentCollection;
+    }
+
+    if (typeof video !== undefined && video) {
+      path += "/" + video;
+    }
+
     return await this.host.get(path);
   }
 

@@ -11,6 +11,7 @@ import {IconBaseProps} from "react-icons";
 
 type ControlBarProps = {
   player: Player;
+  video?: string;
 }
 
 export const ControlBar = (props: ControlBarProps) => {
@@ -19,11 +20,25 @@ export const ControlBar = (props: ControlBarProps) => {
    * The ControlButton items in the ControlBar component.
    * @returns {JSX.Element} - Returns the JSX element for the ControlButton items in the ControlBar.
    */
-  return (
-    <div className="flex gap-6 p-2 w-full items-center justify-center border-t bg-gray-50">
+  const video = props?.video
+  let buttons;
+  if (video !== undefined) {
+    buttons = (
+      <ControlButton onClick={() => player.playVideo(video)} iconClass={HiPlayPause} />
+    )
+  } else {
+    buttons = (
+      <>
         <ControlButton onClick={() => player.seek(-15)} iconClass={HiArrowLeftCircle} />
         <ControlButton onClick={() => player.togglePause()} iconClass={HiPlayPause} />
         <ControlButton onClick={() => player.seek(15)} iconClass={HiArrowRightCircle} />
+      </>
+    )
+  }
+
+  return (
+    <div className="flex gap-6 p-2 w-full items-center justify-center rounded-b-lg border-t bg-gray-50">
+      { buttons }
     </div>
   )
 }

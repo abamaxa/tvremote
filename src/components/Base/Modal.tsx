@@ -1,10 +1,9 @@
 /**
  * Typescript code consisting of a Modal component and a ModalStack class.
  * The Modal component renders a reusable modal with a transparent overlay background.
- * The ModalStack class manages an array of modals and allows adding and removing of modals.
  */
 
-import React, {CSSProperties, Dispatch, ReactNode, useEffect, useRef, useState} from "react";
+import React, {ReactNode} from "react";
 
 /**
  * Type for mouse events on a div element
@@ -17,8 +16,9 @@ type MouseDivEvent = React.MouseEvent<HTMLDivElement, MouseEvent>;
  * @param children - the children to render within the modal
  */
 type ModalProps = {
-  closeMenu: () => void;
+  onClose: () => void;
   children: ReactNode;
+  title? : string;
 };
 
 /**
@@ -30,118 +30,59 @@ const Modal = (props: ModalProps) => {
   // Id for the modal overlay div element
   const idModalOverlay = "modal-overlay";
 
-  // Reference for the children div element within the modal
-  const childrenRef = useRef(null);
-
-  // State for the modal's position style properties
-  const [popupStyle, setPopupStyle] = useState({
-    position: "absolute",
-    top: 0,
-    left: 0,
-    visibility: "hidden"
-  } as CSSProperties);
-
-  // Create the children element with refs
-  const children = (
-    <div ref={childrenRef}>
-      {props.children}
-    </div>
-  );
-
-  // Use effect to center the modal vertically and horizontally
-  useEffect(() => {
-    /*
-    Centers the modal vertically and horizontally
-     */
-    const element = childrenRef.current as unknown as HTMLElement;
-    const height = window.innerHeight;
-    const width = window.innerWidth;
-
-    setPopupStyle({
-      position: "absolute",
-      top: (height - element.offsetHeight) / 2,
-      left: (width - element.offsetWidth) / 2,
-      visibility: "visible"
-    });
-  }, [childrenRef]);
-
-  // Style properties for the modal overlay element
-  const overlayStyle: CSSProperties = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-  }
-
   // Function to handle click events on the modal overlay element
   const onClick = (e: MouseDivEvent) => {
     // @ts-ignore
     if (e.target?.id === idModalOverlay) {
-      props.closeMenu();
+      props.onClose();
     }
   }
-
+  // h-auto mb-auto p-1 overflow-y-auto
   return (
-    <div id={idModalOverlay} style={overlayStyle} className="h-screen w-screen bg-gray-900 bg-opacity-50 dark:bg-opacity-80" onClick={onClick} >
-      <div style={popupStyle} className="h-auto w-fit z-20 shadow transition-opacity duration-100 rounded divide-y divide-gray-100 border border-gray-600 bg-white text-gray-900 dark:border-none dark:bg-gray-700 dark:text-white">
-        { children }
+    <div
+      id={idModalOverlay}
+      className="z-30 fixed top-0 left-0 mb-auto h-fill-viewport w-full bg-gray-900 bg-opacity-50 dark:bg-opacity-80"
+      onClick={onClick} >
+      <div
+        className="z-35 inset-x-0 max-w-max mx-auto flex flex-col fixed top-8 h-max max-h-screen shadow transition-opacity duration-100 rounded divide-y divide-gray-100 border border-gray-600 bg-white text-gray-900 dark:border-none dark:bg-gray-700 dark:text-white">
+        <div className="flex items-start justify-between bg-gray-50 rounded-t dark:border-gray-600 border-b p-2">
+          <h3 className="mt-1 ml-1 text-l font-medium text-gray-900 dark:text-white">
+            { props.title }
+          </h3>
+          <button aria-label="Close"
+                  className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                  type="button"
+                  onClick={(_) => props.onClose()}
+          >
+            <svg stroke="currentColor" fill="none" strokeWidth="0" viewBox="0 0 24 24" aria-hidden="true"
+                 className="h-5 w-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div className="mb-auto overflow-y-scroll">
+          {props.children}
+        </div>
       </div>
     </div>
   );
 }
 
-/**
- * The ModalStack class manages an array of modals and provides methods to add and remove modals
- */
-export class ModalStack {
-  /**
-   * The array of modals in the stack
-   */
-  private readonly theStack: JSX.Element[];
+export default Modal;
 
-  /**
-   * The function to set the array of modals
-   */
-  private readonly setTheStack: Dispatch<any>;
 
-  /**
-   * Constructor for the ModalStack class
-   * @param theStack - the initial array of modals to manage
-   * @param setTheStack - the function to set the array of modals
-   */
-  constructor(theStack: JSX.Element[], setTheStack: Dispatch<any>) {
-    this.theStack = theStack;
-    this.setTheStack = setTheStack;
-  }
-
-  /**
-   * Gets the current modal in the stack
-   * @returns the current modal JSX Element or an empty JSX Element if the stack is empty
-   */
-  getCurrent = (): JSX.Element => {
-    if (this.theStack.length > 0) {
-      return this.theStack[0];
-    }
-    return (<></>);
-  }
-
-  /**
-   * Adds a new modal to the stack
-   * @param newElement - the JSX Element of the new modal to add
-   */
-  push = (newElement: JSX.Element) => {
-    this.theStack.push(newElement);
-    this.setTheStack(this.theStack);
-  }
-
-  /**
-   * Removes the current modal from the stack
-   */
-  pop = () => {
-    if (this.theStack.length > 0) {
-      this.theStack.splice(0, 1);
-      this.setTheStack(this.theStack);
-    }
-  }
+type CardModalProps = {
+  title: string;
+  children: ReactNode;
+  onClose: (() => void);
 }
 
-export default Modal;
+export const CardModal = (props: CardModalProps): JSX.Element => {
+  return (
+    <Modal onClose={props.onClose} title={props.title}>
+      <div className="p-2">
+        { props.children }
+      </div>
+    </Modal>
+  )
+}

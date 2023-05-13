@@ -5,13 +5,37 @@ import {RestAdaptor} from "../adaptors/RestAdaptor";
  *
  * @interface
  */
+export class RemotePlayerState {
+  readonly currentTime: number;
+  readonly duration: number;
+  readonly currentSrc: string;
+  readonly collection: string;
+  readonly video: string;
+
+  constructor(player: HTMLVideoElement, collection: string, video: string) {
+    this.currentTime = player.currentTime;
+    this.duration = player.duration;
+    this.currentSrc = player.currentSrc;
+    this.collection = collection;
+    this.video = video;
+  }
+}
+
+/**
+ * Represents a message that can be sent from the remote server.
+ *
+ * @interface
+ */
 export interface RemoteMessage {
   Play?: PlayRequest; // A PlayRequest used to request audio or video playback.
   Stop?: string; // Request audio or video stop.
   TogglePause?: string; // Toggle audio or video pause.
   Command?: {command: string}; // A string command that can be sent to a remote server.
   Seek?: {interval: number}; // An interval of time that can be sent to seek audio or video playback.
+  State?: RemotePlayerState;
+  Error?: string;
 }
+
 
 /**
  * Represents a request for audio or video playback.
@@ -20,6 +44,8 @@ export interface RemoteMessage {
  */
 export interface PlayRequest {
   url: string; // The URL to audio or video media.
+  collection: string;
+  video: string;
 }
 
 /**
@@ -62,7 +88,7 @@ export class RemoteCommand {
  *
  * @class
  */
-export class VideoEntry {
+export class CollectionDetails {
   /**
    * The name of the video's collection.
    *
@@ -97,6 +123,51 @@ export class VideoEntry {
    * @type {string[]}
    */
   errors: string[] = [];
+}
+
+export interface VideoMetadata {
+  duration: number;
+  width: number;
+  height: number;
+  audioTracks: number;
+}
+
+export interface SeriesDetails {
+  seriesTitle: string;
+  season: string;
+  episode: string;
+  episodeTitle: string;
+}
+
+class VideoParseError extends Error {
+  constructor(public message: string) {
+    super(message);
+    this.name = "VideoParseError";
+  }
+}
+
+export interface VideoDetails {
+  video: string;
+  collection: string;
+  description: string;
+  series: SeriesDetails;
+  thumbnail: string; // Assuming PathBuf is serialized to a string
+  metadata: VideoMetadata;
+}
+
+/*
+export class VideoDetails {
+  name: string = "";
+  image?: string;
+  lengthMinutes: number = 0;
+  description?: string;
+}*/
+
+
+export interface MediaDetails {
+  Collection?: CollectionDetails; // A PlayRequest used to request audio or video playback.
+  Video?: VideoDetails; // Request audio or video stop.
+  Error?: string;
 }
 
 /**

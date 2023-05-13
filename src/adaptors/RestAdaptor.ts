@@ -126,8 +126,8 @@ export class HTTPRestAdaptor implements RestAdaptor {
    */
   makeUrl = (path: string): string => {
     if (this.host !== undefined) {
-      return `http://${this.host}/${path}`;
+      return `http://${this.host}/api/${path}`;
     }
-    return `/${path}`;
+    return `/api/${path}`;
   }
 }

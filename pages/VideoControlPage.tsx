@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {log_info, log_warning} from "../src/services/Logger";
 import {SocketAdaptor} from "../src/adaptors/Socket";
-import {RemoteMessage} from "../src/domain/Messages";
+import {PlayRequest, RemoteMessage, RemotePlayerState} from "../src/domain/Messages";
 import {RestAdaptor} from "../src/adaptors/RestAdaptor";
 
 type VideoControlProps = {
@@ -10,16 +10,17 @@ type VideoControlProps = {
 
 const VideoControlPage = (props: VideoControlProps) => {
 
-  const [currentVideo, setCurrentVideo] = useState("");
+  const [socket, setSocket] = useState<SocketAdaptor | null>(null);
+  const [currentVideo, setCurrentVideo] = useState<PlayRequest>();
   const videoControlRef = useRef(null);
 
   useEffect(() => {
     const host = props.host.getHost() ? props.host.getHost() : location.host;
-    const socket = new SocketAdaptor(
-      () => new WebSocket(`ws://${host}/remote/ws`),
+    const _socket = new SocketAdaptor(
+      () => new WebSocket(`ws://${host}/api/remote/ws`),
       (message: RemoteMessage) => {
         if (message.Play !== undefined) {
-          setCurrentVideo(message.Play.url);
+          setCurrentVideo(message.Play);
 
         } else if (message.Seek !== undefined && videoControlRef !== null) {
           const vc = videoControlRef.current as unknown as HTMLVideoElement;
@@ -32,13 +33,9 @@ const VideoControlPage = (props: VideoControlProps) => {
       }
     );
 
-  }, [props.host])
+    setSocket(_socket);
 
-  /*const playFullScreen = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video: HTMLVideoElement = e.currentTarget;
-    video.requestFullscreen().then(r => log_info(`requestFullscreen: ${r}`)).catch(r => log_info(`failed: ${r}`));
-    video.className ="w-full";
-  }*/
+  }, [props.host]);
 
   const togglePause = (vc: HTMLVideoElement) => {
     if (vc.paused) {
@@ -53,7 +50,6 @@ const VideoControlPage = (props: VideoControlProps) => {
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const vc = e.currentTarget as unknown as HTMLVideoElement;
-    // const vc = videoControlRef.current as unknown as HTMLVideoElement;
     togglePause(vc);
   }
 
@@ -73,7 +69,14 @@ const VideoControlPage = (props: VideoControlProps) => {
     log_info(`keyPress: ${e.key}, code: ${e.code}`);
   }
 
-  if (currentVideo != "") {
+  const onTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    if (socket !== null && currentVideo !== undefined) {
+      const player = e.currentTarget as HTMLVideoElement;
+      socket.send({State: new RemotePlayerState(player, currentVideo.collection, currentVideo.video)});
+    }
+  }
+
+  if (currentVideo !== undefined) {
     // onClick={e => onClick(e)}
     return (
         <div className="bg-black h-screen w-screen">
@@ -81,12 +84,13 @@ const VideoControlPage = (props: VideoControlProps) => {
             className="m-auto w-full h-screen object-contain outline-0"
             onEnded={e => getNextVideo(e)}
             onError={e => logVideoError(e)}
+            onTimeUpdate={e => onTimeUpdate(e)}
             id="video"
             autoPlay={true}
             controls
             muted={false}
             playsInline={false}
-            src={currentVideo}
+            src={currentVideo.url}
             ref={videoControlRef}
           >
           </video>
@@ -94,8 +98,8 @@ const VideoControlPage = (props: VideoControlProps) => {
     )
   } else {
     return (
-      <h1 className="text-6xl text-white bg-black text-center h-screen py-32">
-        Ready
+      <h1 className="text-4xl text-white bg-black text-center h-screen py-32">
+        Something To See Coming Soon...
       </h1>
     )
   }
