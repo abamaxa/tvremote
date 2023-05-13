@@ -42,7 +42,7 @@ describe('SocketAdaptor', () => {
 
     const mockAddEventListener = jest.spyOn(theSocket, 'addEventListener');
     socketAdaptor.addListeners();
-    expect(mockAddEventListener).toHaveBeenCalledTimes(2);
+    expect(mockAddEventListener).toHaveBeenCalledTimes(3);
     expect(mockAddEventListener).toHaveBeenCalledWith('open', expect.any(Function));
     expect(mockAddEventListener).toHaveBeenCalledWith('message', expect.any(Function));
   });
