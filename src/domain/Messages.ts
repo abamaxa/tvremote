@@ -34,6 +34,7 @@ export interface RemoteMessage {
   Seek?: {interval: number}; // An interval of time that can be sent to seek audio or video playback.
   State?: RemotePlayerState;
   Error?: string;
+  SendLastState?: string;
 }
 
 
