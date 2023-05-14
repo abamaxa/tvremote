@@ -59,14 +59,14 @@ export class SocketAdaptor {
       this.socket.onopen = () => {
         console.log("open websocket event");
         if (self.socket !== undefined) {
-          self.socket.send('Hello Server!');
+          self.open = true;
+          self.send({SendLastState: null});
         }
-        self.open = true;
       };
 
       this.socket.onerror = (error) => {
         console.log(`WebSocket encountered error: ${JSON.stringify(error)}, closing socket`);
-        setTimeout(self._reconnect, 5000);
+        setTimeout(self._reconnect, 1000);
       };
 
       // Parses a message when one is received.
@@ -116,6 +116,10 @@ export class SocketAdaptor {
 
       // Convert the JSON string to a Blob
       const blob = new Blob([jsonString], { type: "application/json" });
+
+      if (this.socket.readyState > 1) {
+        this._reconnect();
+      }
 
       try {
         this.socket.send(blob);
