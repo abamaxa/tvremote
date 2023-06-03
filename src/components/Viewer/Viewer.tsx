@@ -1,18 +1,23 @@
 import React, {useEffect, useRef, useState} from "react";
-import {log_info, log_warning} from "../src/services/Logger";
-import {SocketAdaptor} from "../src/adaptors/Socket";
-import {PlayRequest, RemoteMessage, RemotePlayerState} from "../src/domain/Messages";
-import {RestAdaptor} from "../src/adaptors/RestAdaptor";
+import {log_info, log_warning} from "../../services/Logger";
+import {SocketAdaptor} from "../../adaptors/Socket";
+import {PlayRequest, RemoteMessage, RemotePlayerState} from "../../domain/Messages";
+import {RestAdaptor} from "../../adaptors/RestAdaptor";
+import VideoTab from "../Video/VideoTab";
+import {VideoPlayer} from "../../services/Player";
 
 type VideoControlProps = {
   host: RestAdaptor;
 }
 
-const VideoControlPage = (props: VideoControlProps) => {
+const Viewer = (props: VideoControlProps) => {
 
   const [socket, setSocket] = useState<SocketAdaptor | null>(null);
   const [currentVideo, setCurrentVideo] = useState<PlayRequest>();
+  const [currentCollection, setCurrentCollection] = useState<string>("");
   const videoControlRef = useRef(null);
+
+  const videoPlayer = new VideoPlayer(currentCollection, setCurrentCollection, props.host, "");
 
   useEffect(() => {
     const host = props.host.getHost() ? props.host.getHost() : location.host;
@@ -76,6 +81,11 @@ const VideoControlPage = (props: VideoControlProps) => {
     }
   }
 
+  const showVideoDetails = (name: string) => {
+    console.log(`video: ${name}`);
+    videoPlayer.playVideo(name);
+  }
+
   if (currentVideo !== undefined) {
     // onClick={e => onClick(e)}
     return (
@@ -98,11 +108,17 @@ const VideoControlPage = (props: VideoControlProps) => {
     )
   } else {
     return (
-      <h1 className="text-4xl text-white bg-black text-center h-screen py-32">
-        Something To See Coming Soon...
-      </h1>
+      <div className="bg-black h-screen w-screen flex">
+        <div className="p-1 mx-auto overflow-y-auto w-1/2">
+          <VideoTab
+            videoPlayer={videoPlayer}
+            isActive={true}
+            showVideoDetails={showVideoDetails}
+          />
+        </div>
+      </div>
     )
   }
 };
 
-export default VideoControlPage;
+export default Viewer;
