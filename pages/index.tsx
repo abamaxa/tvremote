@@ -1,11 +1,11 @@
 import type { NextPage } from 'next'
-import VideoControlPage from "./VideoControlPage";
+import Viewer from "../src/components/Viewer/Viewer";
 import {createLogger} from "../src/services/Logger";
 import {useEffect, useState} from "react";
 import {HTTPRestAdaptor, RestAdaptor} from "../src/adaptors/RestAdaptor";
 import {Main} from "../src/components/Main";
 
-const host: RestAdaptor = new HTTPRestAdaptor();
+const host: RestAdaptor = new HTTPRestAdaptor("coco.abamaxa.com");
 
 createLogger(host);
 
@@ -31,7 +31,7 @@ const Home: NextPage = () => {
   }, [])
 
   if (mode == Mode.Video) {
-    return (<VideoControlPage host={host}/>)
+    return (<Viewer host={host}/>)
   } else if (mode == Mode.Remote) {
     return (<Main host={host}/>)
   } else {
