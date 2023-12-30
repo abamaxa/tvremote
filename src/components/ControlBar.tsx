@@ -22,7 +22,7 @@ export const ControlBar = (props: ControlBarProps) => {
    */
   const video = props?.video
   let buttons;
-  if (video !== undefined) {
+  if (typeof video !== "undefined") {
     buttons = (
       <ControlButton onClick={() => player.playVideo(video)} iconClass={HiPlayPause} />
     )

@@ -1,4 +1,5 @@
 import { HTTPRestAdaptor, RestAdaptor } from "../../src/adaptors/RestAdaptor";
+import {StatusCodes} from "../../src/domain/Constants";
 
 
 describe("HTTPRestAdaptor", () => {
@@ -48,13 +49,14 @@ describe("HTTPRestAdaptor", () => {
     global.fetch = jest.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve(mockData),
+        status: StatusCodes.OK,
       })
     );
 
     const path = "tasks/1";
     const data = await restAdaptor.get(path);
     expect(global.fetch).toHaveBeenCalledWith(
-      `http://${mockHost}/api/${path}`
+      `http://${mockHost}/api/${path}`, undefined
     );
     expect(data).toEqual(mockData);
   });

@@ -1,4 +1,4 @@
-import {CollectionDetails} from "../../domain/Messages";
+import {CollectionDetails, MediaDetails, VideoDetails} from "../../domain/Messages";
 import { LI_STYLE, UL_STYLE } from "../../domain/Constants";
 import { Player } from "../../services/Player";
 import {VideoItem} from "./VideoItem";
@@ -13,6 +13,7 @@ type VideoEntryListArgs = {
 type CollectionItemArgs = {
   isLast: boolean;
   name: string;
+  parent: string;
   setCurrentCollection: (collection: string) => void;
 }
 
@@ -46,17 +47,23 @@ export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
         key={name}
         isLast={index === lastCollection && lastVideo < 0}
         name={name}
+        parent={message.entry.collection}
         setCurrentCollection={message.setCurrentCollection}
       />
     );
   });
 
-  const videos = message.entry.videos.map((name: string, index: number): JSX.Element => {
+  const videos = message.entry.videos.map((item: MediaDetails, index: number): JSX.Element | null => {
+    const video = item.Video;
+    if (typeof(video) === "undefined") {
+      return null;
+    }
+
     return (
       <VideoItem
-        key={name}
+        key={index}
         isLast={index === lastVideo}
-        name={name}
+        name={video.video}
         videoPlayer={message.videoPlayer}
         setVideoDetails={message.setVideoDetails}
       />
@@ -83,10 +90,11 @@ export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
  */
 const CollectionItem = (props: CollectionItemArgs): JSX.Element => {
   const classes = getClasses(props.isLast);
+  const fullName = props.parent !== "" ? props.parent + "/" + props.name : props.name;
   return (
     <li
       className={classes}
-      onClick={() => props.setCurrentCollection(props.name)}
+      onClick={() => props.setCurrentCollection(fullName)}
     >
       {props.name}
     </li>

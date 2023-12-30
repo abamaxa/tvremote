@@ -46,7 +46,7 @@ const PopupMenu = (props: PopupMenuProps) => {
   const [popupStyle, setPopupStyle] = useState({
     position: "absolute",
     width: `${target.clientWidth + 4}px`,
-    top: `${target.offsetTop + target.clientHeight - (props.scrollTop !== undefined ? props.scrollTop : 0) - 4}px`,
+    top: `${target.offsetTop + target.clientHeight - (typeof props.scrollTop !== "undefined" ? props.scrollTop : 0) - 4}px`,
     left: `${target.offsetLeft - 2}px`,
   } as CSSProperties);
 
@@ -64,7 +64,7 @@ const PopupMenu = (props: PopupMenuProps) => {
    */
   useEffect(() => {
     const element = childrenRef.current as unknown as HTMLElement;
-    const top = target.offsetTop - (props.scrollTop !== undefined ? props.scrollTop : 0);
+    const top = target.offsetTop - (typeof props.scrollTop !== "undefined" ? props.scrollTop : 0);
     if (element.clientHeight + top +target.clientHeight > window.innerHeight) {
       setPopupStyle({
         position: "absolute",

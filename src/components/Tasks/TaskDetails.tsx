@@ -66,7 +66,7 @@ type TaskDetailProps = {
  */
 export const TaskDetail = (props: TaskDetailProps): JSX.Element => {
   // Use an empty label if undefined is passed 
-  const label = props.label === undefined ? "" : `${props.label}: `;
+  const label = typeof props.label === "undefined" ? "" : `${props.label}: `;
   
   // Return the JSX for a single task detail 
   return (

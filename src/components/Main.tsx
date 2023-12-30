@@ -83,7 +83,12 @@ export const Main = (props: HostConfig) => {
       case CardNames.CurrentVideo:
         return (
           <CardModal title="Current Video" onClose={onClose}>
-            <VideoItemDetail player={videoPlayer} setDialog={setDialog} lastMessage={lastMessage} />
+            <VideoItemDetail
+              player={videoPlayer}
+              setDialog={setDialog}
+              lastMessage={lastMessage}
+              back={onClose}
+            />
           </CardModal>
         );
 

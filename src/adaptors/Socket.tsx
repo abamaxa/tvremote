@@ -51,14 +51,14 @@ export class SocketAdaptor {
    * Adds listeners for WebSocket open and message events.
    */
   addListeners = () => {
-    if (this.socket !== undefined && !this.listening) {
+    if (typeof this.socket !== "undefined" && !this.listening) {
       this.listening = true;
       const self = this;
 
       // Sends a message when the WebSocket is opened.
       this.socket.onopen = () => {
         console.log("open websocket event");
-        if (self.socket !== undefined) {
+        if (typeof self.socket !== "undefined") {
           self.open = true;
           self.send({SendLastState: null});
         }
@@ -82,7 +82,7 @@ export class SocketAdaptor {
    * @param reason - A reason for closing the connection.
    */
   close = (code?: number | undefined, reason?: string | undefined) => {
-    if (this.socket !== undefined) {
+    if (typeof this.socket !== "undefined") {
       try {
         this.socket.close(code, reason);
       } catch {
@@ -100,7 +100,7 @@ export class SocketAdaptor {
    * @param message - The message to send.
    */
   send_string = (message: string) => {
-    if (this.socket !== undefined && this.open) {
+    if (typeof this.socket !== "undefined" && this.open) {
       this.socket.send(message);
     }
   }
@@ -110,7 +110,7 @@ export class SocketAdaptor {
    * @param message - The message to send.
    */
   send = <T,>(message: T) => {
-    if (this.socket !== undefined && this.open) {
+    if (typeof this.socket !== "undefined" && this.open) {
       // Serialize the object as a JSON string
       const jsonString = JSON.stringify(message);
 
@@ -135,7 +135,7 @@ export class SocketAdaptor {
    * @param event - The event containing the message.
    */
   onReceive = async (event: any) => {
-    if (this.socket !== undefined && this.open && this.onMessage !== undefined) {
+    if (typeof this.socket !== "undefined" && this.open && typeof this.onMessage !== "undefined") {
       if (event.data instanceof string) {
         // Log message.
         log_info(event.data);
@@ -170,7 +170,7 @@ export class SocketAdaptor {
    * @return - A boolean indicating if the WebSocket is open.
    */
   isReady = ():boolean => {
-    return (this.socket !== undefined && this.open);
+    return (typeof this.socket !== "undefined" && this.open);
   }
 
   _reconnect = () => {

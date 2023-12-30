@@ -1,11 +1,12 @@
 import type { NextPage } from 'next'
-import Viewer from "../src/components/Viewer/Viewer";
-import {createLogger} from "../src/services/Logger";
+import Viewer from "@/components/Viewer/Viewer";
+import {createLogger, log_info} from "@/services/Logger";
 import {useEffect, useState} from "react";
-import {HTTPRestAdaptor, RestAdaptor} from "../src/adaptors/RestAdaptor";
-import {Main} from "../src/components/Main";
+import {HTTPRestAdaptor, RestAdaptor} from "@/adaptors/RestAdaptor";
+import {Main} from "@/components/Main";
+import {API_URL} from "@/config/constants";
 
-const host: RestAdaptor = new HTTPRestAdaptor();
+const host: RestAdaptor = new HTTPRestAdaptor(API_URL);
 
 createLogger(host);
 
@@ -23,9 +24,13 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
-    if (!userAgent.includes("Firefox") || userAgent.includes("SMART-TV") || userAgent.includes("SmartTV")) {
+    const url = new URLSearchParams(location.search);
+
+    if (userAgent.includes("SMART-TV") || userAgent.includes("SmartTV") || url.has("player")) {
+      log_info(`detected smart-tv: ${userAgent}, ${url}`);
       setMode(Mode.Video)
     } else {
+      log_info(`detected normal browser: ${userAgent}`);
       setMode(Mode.Remote)
     }
   }, [])

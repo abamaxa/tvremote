@@ -65,7 +65,7 @@ class AlertManager {
     this.onOk = onOk;
     this.message = makeString(message);
 
-    if (this.setAlertVisible !== undefined) {
+    if (typeof this.setAlertVisible !== "undefined") {
       this.setAlertVisible(true);
     }
   }
@@ -75,7 +75,7 @@ class AlertManager {
    */
   hideAlert = () => {
     this.show = false;
-    if (this.setAlertVisible !== undefined) {
+    if (typeof this.setAlertVisible !== "undefined") {
       this.setAlertVisible(false);
     }
   }
@@ -145,9 +145,9 @@ export const askQuestion = (message: string, onOk?: (() => void)) => {
  * @param onOk - Callback function to be executed when the user clicks on the 'Ok' button of the alert box.
  */
 const showAlert = (message: string, type: AlertType, onOk?: (() => void)) => {
-  if (gAlertManager !== undefined) {
+  if (typeof gAlertManager !== "undefined") {
     gAlertManager.showAlert(message, type, onOk);
-  } else if (onOk !== undefined) {
+  } else if (typeof onOk !== "undefined") {
     throw "onOk cannot be set if no global AlertManager has been set";
   } else {
     alert(message);

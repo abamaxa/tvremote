@@ -27,10 +27,10 @@ export const SpeedDialer = (props: SpeedDialerProps) => {
    * Renders the popup menu with proper HTML structure and properties
    */
   const containerClasses = "z-20 p-1 fixed flex flex-col-reverse gap-4 right-2 bottom-2 group";
-  const buttonClasses = "rounded-full w-14 h-14 border-2 border-gray-300 bg-primary-700 hover:bg-primary-900 shadow-lg";
-  const iconClasses = "ml-4 mt-4 h-6 w-6";
-  const videoButtonClasses = buttonClasses + (props.lastMessage?.State === undefined ? " invisible" : "");
-  const videoIcon = props.lastMessage?.State === undefined ? (<></>) : (<HiVideoCamera color="white" className={iconClasses} />);
+  const buttonClasses = "flex rounded-full w-14 h-14 justify-center items-center border-2 border-gray-300 bg-primary-700 hover:bg-primary-900 shadow-lg";
+  const iconClasses = "h-6 w-6";
+  const videoButtonClasses = buttonClasses + (typeof props.lastMessage?.State === "undefined" ? " invisible" : "");
+  const videoIcon = typeof props.lastMessage?.State === "undefined" ? (<></>) : (<HiVideoCamera color="white" className={iconClasses} />);
 
   return (
     <div className={containerClasses}>

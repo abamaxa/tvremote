@@ -1,3 +1,6 @@
+import {StatusCodes} from "../domain/Constants";
+import {log_error} from "../services/Logger";
+
 /**
  * Interface for a Rest Adaptor
  */
@@ -7,7 +10,7 @@ export interface RestAdaptor {
    * @param path The endpoint to send the request to
    * @returns A Promise with the response data
    */
-  get: <T>(path: string) => Promise<T>;
+  get: <T>(path: string, options?: RequestInit) => Promise<T>;
   
   /**
    * Makes a DELETE request at the specified endpoint
@@ -58,17 +61,33 @@ export class HTTPRestAdaptor implements RestAdaptor {
    * @returns A string representing the current host, or null if no host is set
    */
   getHost = (): string | null => {
-    return this.host !== undefined ? this.host : null;
+    return typeof this.host !== "undefined" ? this.host : null;
   }
 
   /**
    * Makes a GET request at the specified endpoint
    * @param path The endpoint to send the request to
+   * @param options
    * @returns A Promise with the response data
    */
-  get = async <T>(path: string): Promise<T> => {
-    const response = await fetch(this.makeUrl(path));
-    return await response.json();
+  get = async <T>(path: string, options?: RequestInit): Promise<T> => {
+    const response = await fetch(this.makeUrl(path), options);
+    if (response.status !== StatusCodes.OK) {
+      throw new Error(
+        `GET ${path} returned ${response.status} ${response.statusText}`
+      );
+    }
+
+    try {
+      return await response.json();
+    } catch (error) {
+      if (typeof options === "undefined") {
+        return this.get(path, {cache: "reload"})
+      } else {
+        log_error(error,`could not fetch ${path}`);
+        throw error;
+      }
+    }
   }
 
   /**
@@ -125,7 +144,7 @@ export class HTTPRestAdaptor implements RestAdaptor {
    * @returns A string with the URL for the specified endpoint
    */
   makeUrl = (path: string): string => {
-    if (this.host !== undefined) {
+    if (typeof this.host !== "undefined") {
       return `http://${this.host}/api/${path}`;
     }
     return `/api/${path}`;

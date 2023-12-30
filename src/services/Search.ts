@@ -71,7 +71,7 @@ export class BaseSearch implements Search {
         showInfoAlert(data.error);
       }
     } catch(error) {
-      log_error(error);
+      log_error(error, `query: ${term}`);
     }
   }
 }

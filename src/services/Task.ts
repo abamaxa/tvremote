@@ -103,7 +103,7 @@ export class TaskManager implements TaskService {
         log_warning(data.error);
       }
     } catch (error) {
-      log_error(error);
+      log_error(error, "list");
     }
   }
 
@@ -125,7 +125,7 @@ export class TaskManager implements TaskService {
         {name: item.title, link: item.link, engine: item.engine}
       );
     } catch (error) {
-      log_error(error);
+      log_error(error, "TaskManager.add");
     }
   }
 
@@ -148,7 +148,7 @@ export class TaskManager implements TaskService {
           log_error(`cannot terminate task "${task.name}": "${response.statusText}"`);
         }
       } catch (error) {
-        log_error(error);
+        log_error(error, "TaskManager.delete");
       }
     });
   }

@@ -3,7 +3,7 @@ import {Dropdown, Progress} from "flowbite-react";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {ConvertModal, Modals} from "./Modals";
 import {RemoteMessage} from "../../domain/Messages";
-import {secondsToHMSString, secondsToTimeString} from "../../services/helpers";
+import {secondsToHMSString} from "../../services/helpers";
 import {ControlBar} from "../ControlBar";
 import {log_error} from "../../services/Logger";
 import {VideoDetailsImpl} from "../../domain/Models";
@@ -17,7 +17,7 @@ type VideoDetailProps = {
   player: Player;
   setDialog: Dispatch<SetStateAction<JSX.Element>>;
   lastMessage ? : RemoteMessage;
-  back?: (() => void);
+  back: (() => void);
 }
 
 class VideoPropsWrapper {
@@ -26,10 +26,10 @@ class VideoPropsWrapper {
   readonly player: Player;
   readonly setDialog: Dispatch<SetStateAction<JSX.Element>>;
   readonly lastMessage ? : RemoteMessage;
-  readonly back?: (() => void);
+  readonly back: (() => void);
 
   constructor(props: VideoDetailProps) {
-    if (props.lastMessage !== undefined) {
+    if (typeof props.lastMessage !== "undefined") {
       this.lastMessage = props.lastMessage;
     }
 
@@ -44,11 +44,11 @@ class VideoPropsWrapper {
   }
 
   name = (): string => {
-    if (this.video !== undefined) {
+    if (typeof this.video !== "undefined") {
       return this.video;
     }
 
-    if (this.lastMessage?.State !== undefined) {
+    if (typeof this.lastMessage?.State !== "undefined") {
       return this.lastMessage.State.video;
     }
 
@@ -56,11 +56,11 @@ class VideoPropsWrapper {
   }
 
   getCollection = (): string => {
-    if (this.collection !== undefined) {
+    if (typeof this.collection !== "undefined") {
       return this.collection;
     }
 
-    if (this.lastMessage?.State !== undefined) {
+    if (typeof this.lastMessage?.State !== "undefined") {
       return this.lastMessage.State.collection;
     }
 
@@ -70,14 +70,31 @@ class VideoPropsWrapper {
   getDetails = async (): Promise<VideoDetailsImpl | null> => {
     try {
       let result = await this.player.fetchDetails(this.name(), this.getCollection());
-      if (result.Video !== undefined) {
+      if (typeof result.Video !== "undefined") {
         return new VideoDetailsImpl(result.Video);
       }
     } catch (error) {
-      log_error(error);
+      log_error(error, `getDetails: ${this.name()}, ${this.getCollection()}`);
     }
 
     return null;
+  }
+
+  getUrl = (): string => {
+    /*
+    this is a hack, we need the server to send the full url of the file to download 
+    as the host with the media may not be the same as the host serving this app. 
+    
+    Also this code breaks if the root url changes 
+    */
+    const collection = this.getCollection();
+    const downloadRoot = "/api/stream";
+
+    if (collection !== "") {
+      return `${downloadRoot}/${collection}/${this.name()}`;
+    }
+
+    return `${downloadRoot}/${this.name()}`;
   }
 
   showProgress = (): boolean => {
@@ -101,7 +118,7 @@ export const VideoItemDetail = (_props: VideoDetailProps) => {
         const details: VideoDetailsImpl | null = await props.getDetails();
         setVideoDetails(details);
       } catch (error) {
-        log_error(error);
+        log_error(error, "fetchData");
       }
     };
 
@@ -159,7 +176,7 @@ const getDescription = (videoDetails: VideoDetailsImpl | null) => {
       </div>
     );
   } catch(error) {
-    log_error(error);
+    log_error(error, `getDescription: ${videoDetails}`);
     return (
       <div>
         { JSON.stringify(error) }
@@ -179,7 +196,7 @@ const getDescription = (videoDetails: VideoDetailsImpl | null) => {
 export const PlayerProgress = (props: {message?: RemoteMessage}) => {
 
   const playerState = props.message?.State;
-  if (playerState == undefined) {
+  if (typeof playerState === "undefined") {
     return (<></>);
   }
 
@@ -196,6 +213,7 @@ export const PlayerProgress = (props: {message?: RemoteMessage}) => {
 }
 
 export const VideoMenu = (props: VideoPropsWrapper) => {
+
   return (
     <Dropdown label="..."  placement="left-start" arrowIcon={false} inline={true}>
       <Dropdown.Item onClick={() => showRenameModal(props)}>
@@ -203,6 +221,9 @@ export const VideoMenu = (props: VideoPropsWrapper) => {
       </Dropdown.Item>
       <Dropdown.Item onClick={() => showConvertModal(props)}>
         Convert...
+      </Dropdown.Item>
+      <Dropdown.Item onClick={() => downloadVideo(props)}>
+        Download
       </Dropdown.Item>
       <Dropdown.Item onClick={() => deleteVideo(props)}>
         Delete
@@ -247,7 +268,6 @@ const showConvertModal = (props: VideoPropsWrapper) => {
  * @returns {void}
  */
 const playVideo = (props: VideoPropsWrapper) => {
-  props.setDialog(HIDE_DIALOG);
   props.player.playVideo(props.name());
 }
 
@@ -257,6 +277,25 @@ const playVideo = (props: VideoPropsWrapper) => {
  * @returns {void}
  */
 const deleteVideo = (props: VideoPropsWrapper) => {
-  props.setDialog(HIDE_DIALOG);
-  props.player.deleteVideo(props.name());
+  props.player.deleteVideo(props.name(), props.back);
+}
+
+const downloadVideo = (props: VideoPropsWrapper): void => {
+
+  if (typeof props.video !== "undefined") {
+    // Create a new link
+    const anchor = document.createElement('a');
+
+    anchor.download = props.video;
+    anchor.href = props.getUrl();
+
+    // Append to the DOM
+    document.body.appendChild(anchor);
+
+    // Trigger `click` event
+    anchor.click();
+
+    // Remove element from DOM
+    document.body.removeChild(anchor);
+  }
 }

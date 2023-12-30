@@ -22,7 +22,7 @@ export interface Player {
   togglePause: (() => void);
   setCurrentCollection: ((newCollection: string) => void);
   getCurrentCollection: (() => string);
-  deleteVideo: (video: string) => void;
+  deleteVideo: (video: string, onSuccess?: (() => void)) => void;
   renameVideo: (video: string, newName: string) => void;
   convertVideo: (video: string, conversion: string) => void;
   getAvailableConversions: () => Promise<Conversion[]>;
@@ -74,7 +74,7 @@ export class VideoPlayer implements Player {
       }
       results = response.results || [];
     } catch (error) {
-      log_error(error);
+      log_error(error, "VideoPlayer.getAvailableConversions");
     }
     return results;
   }
@@ -83,8 +83,9 @@ export class VideoPlayer implements Player {
    * @method deleteVideo
    * Deletes the specified video from the current collection after confirmation from the user
    * @param {string} video The name of the video file to delete
+   * @param onSuccess
    */
-  deleteVideo = async (video: string) => {
+  deleteVideo = async (video: string, onSuccess?: (() => void)) => {
     const SUCCESS_CODES = [StatusCodes.OK, StatusCodes.ACCEPTED, StatusCodes.NO_CONTENT];
     askQuestion(`Delete video "${video}?"`, async () => {
       try {
@@ -92,9 +93,11 @@ export class VideoPlayer implements Player {
         const response = await this.host.delete(`media/${videoPath}`);
         if (SUCCESS_CODES.findIndex((e) => e === response.status) === -1) {
           log_error(`cannot delete "${video}": "${response.statusText}"`);
+        } else if (typeof onSuccess !== "undefined") {
+          onSuccess();
         }
       } catch (error) {
-        log_error(error);
+        log_error(error, `deleteVideo: ${video}`);
       }
     });
   }
@@ -115,7 +118,7 @@ export class VideoPlayer implements Player {
           log_error(`cannot rename "${video}" to "${newName}": "${response.statusText}"`);
         }
       } catch (error) {
-        log_error(error);
+        log_error(error, `renameVideo: "${video}" to "${newName}"`);
       }
     });
   }
@@ -135,7 +138,7 @@ export class VideoPlayer implements Player {
           log_error(`cannot convert "${video}": "${response.statusText}"`);
         }
       } catch (error) {
-        log_error(error);
+        log_error(error, `convertVideo: ${conversion} with "${video}"`);
       }
     });
   }
@@ -200,7 +203,25 @@ export class VideoPlayer implements Player {
    * @param {string} path The path to send the request to
    * @param {object | RemoteCommand} params The parameters to send with the request
    */
-  post = (path: string, params?: object | RemoteCommand) => {
+  post = async (path: string, params?: object | RemoteCommand) => {
+    try {
+      const response = await this.host.post(path, params);
+      if (response.status !== StatusCodes.OK) {
+        showInfoAlert(response.statusText);
+        return;
+      }
+      const data: GeneralResponse = await response.json();
+      if (data.errors.length > 0) {
+        showInfoAlert(data.errors[0]);
+      }
+    }
+    catch (err) {
+      log_error(err, `post: ${path}`);
+    }
+  }
+
+  /*
+    post = (path: string, params?: object | RemoteCommand) => {
     this.host.post(path, params)
       .then((res) => res.json())
       .then((data: GeneralResponse) => {
@@ -212,6 +233,7 @@ export class VideoPlayer implements Player {
         log_error(err);
       });
   }
+   */
 
   /**
    * @method fetchCollection
@@ -221,13 +243,13 @@ export class VideoPlayer implements Player {
   fetchDetails = async (video? :string, collection?: string): Promise<MediaDetails> => {
     let path: string = "media";
 
-    if (typeof collection !== undefined && collection) {
+    if (typeof collection !== "undefined" && collection) {
       path += "/" + collection;
     } else if (this.currentCollection) {
       path += "/" + this.currentCollection;
     }
 
-    if (typeof video !== undefined && video) {
+    if (typeof video !== "undefined" && video) {
       path += "/" + video;
     }
 

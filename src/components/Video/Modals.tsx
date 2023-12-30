@@ -121,7 +121,7 @@ export const ConvertModal = (props: VideoModalProps): JSX.Element => {
     }
 
     // Fetch the available conversions
-    getConversions().catch((e) => log_error(e));
+    getConversions().catch((e) => log_error(e, "getConversions"));
 
   }, [props.player]);
 

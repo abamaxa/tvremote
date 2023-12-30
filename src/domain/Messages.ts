@@ -78,52 +78,10 @@ export class RemoteCommand {
    */
   constructor(message: RemoteMessage, remote_address?: string) {
     this.message = message;
-    if (remote_address !== undefined) {
+    if (typeof remote_address !== "undefined") {
       this.remote_address = remote_address;
     }
   }
-}
-
-/**
- * Represents a video entry returned from a search result.
- *
- * @class
- */
-export class CollectionDetails {
-  /**
-   * The name of the video's collection.
-   *
-   * @type {string}
-   */
-  collection: string = "";
-
-  /**
-   * The name of the parent collection of the video.
-   *
-   * @type {string}
-   */
-  parent_collection: string = "";
-
-  /**
-   * An array of child collections of the video.
-   *
-   * @type {string[]}
-   */
-  child_collections: string[] = [];
-
-  /**
-   * An array of videos.
-   *
-   * @type {string[]}
-   */
-  videos: string[] = [];
-
-  /**
-   * An array of error messages.
-   *
-   * @type {string[]}
-   */
-  errors: string[] = [];
 }
 
 export interface VideoMetadata {
@@ -164,12 +122,55 @@ export class VideoDetails {
   description?: string;
 }*/
 
+/**
+ * Represents a video entry returned from a search result.
+ *
+ * @class
+ */
+export class CollectionDetails {
+  /**
+   * The name of the video's collection.
+   *
+   * @type {string}
+   */
+  collection: string = "";
+
+  /**
+   * The name of the parent collection of the video.
+   *
+   * @type {string}
+   */
+  parent_collection: string = "";
+
+  /**
+   * An array of child collections of the video.
+   *
+   * @type {string[]}
+   */
+  child_collections: string[] = [];
+
+  /**
+   * An array of videos.
+   *
+   * @type {string[]}
+   */
+  videos: any[] = [];
+
+  /**
+   * An array of error messages.
+   *
+   * @type {string[]}
+   */
+  errors: string[] = [];
+}
 
 export interface MediaDetails {
   Collection?: CollectionDetails; // A PlayRequest used to request audio or video playback.
   Video?: VideoDetails; // Request audio or video stop.
   Error?: string;
 }
+
+
 
 /**
  * Represents a search engine.

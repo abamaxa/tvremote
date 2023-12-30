@@ -37,7 +37,7 @@ const VideoTab = (props: VideoConfig) => {
           setCollection(mediaDetails.Collection);
         }
       } catch (error) {
-        log_error(error);
+        log_error(error, "fetchDetails");
       }
     };
 

@@ -114,10 +114,10 @@ export const createLogger = (host: RestAdaptor) => {
  * @param {boolean} include_stack - [Optional] include stack trace in message.
  * @returns {void}
  */
-export const log = (level: string, message: any, include_stack?: boolean) => {
+export const log = (level: string, message: any, include_stack?: boolean, context?: string) => {
   // Determines whether to use console.log or console.error based on the include_stack parameter
   const conLog = include_stack ? console.error : console.log;
-  const msg_str: string = makeString(message);
+  const msg_str: string = makeString(message, context);
 
   conLog(`${level} - ${msg_str}`);
 
@@ -128,7 +128,7 @@ export const log = (level: string, message: any, include_stack?: boolean) => {
     // Includes stack trace if specified
     if (include_stack) {
       const stackTrace = Error().stack;
-      if (stackTrace !== undefined) {
+      if (typeof stackTrace !== "undefined") {
         args = [...args, ...stackTrace.split('\n')];
       }
     }
@@ -161,8 +161,8 @@ export const log_warning = (message: string) => {
  * @param {*} message - Message to be logged and displayed.
  * @returns {void}
  */
-export const log_error = (message: any) => {
-  log(ERROR, message, true);
+export const log_error = (message: any, context?: string) => {
+  log(ERROR, message, true, context);
   showErrorAlert(message);
 };
 
@@ -171,12 +171,19 @@ export const log_error = (message: any) => {
  * @param {*} message - The message to be converted.
  * @returns {string}
  */
-export const makeString = (message: any): string => {
+export const makeString = (message: any, context?: string): string => {
+  let msg: string;
   if (typeof message === 'string') {
-    return message as string;
+    msg = message as string;
   } else if (message instanceof Error) {
-    return message.message;
+    msg = message.message;
+  } else {
+    msg = JSON.stringify(message);
   }
 
-  return JSON.stringify(message);
+  if (typeof context !== "undefined") {
+    return `${context}: ${msg}`;
+  }
+
+  return msg;
 };

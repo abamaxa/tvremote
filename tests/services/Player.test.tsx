@@ -53,7 +53,7 @@ describe('VideoPlayer', () => {
       const logErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       });
       const result = await player.getAvailableConversions();
-      expect(logErrorSpy).toHaveBeenCalledWith('error - Some error');
+      expect(logErrorSpy).toHaveBeenCalledWith('error - VideoPlayer.getAvailableConversions: Some error');
       expect(result).toEqual([]);
       logErrorSpy.mockRestore();
     });
