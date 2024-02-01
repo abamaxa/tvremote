@@ -47,6 +47,10 @@ export interface PlayRequest {
   url: string; // The URL to audio or video media.
   collection: string;
   video: string;
+  width: number; // The width of the video.
+  height: number; // The height of the video.
+  aspectWidth: number;
+  aspectHeight: number;
 }
 
 /**
@@ -60,7 +64,7 @@ export class RemoteCommand {
    *
    * @type {string}
    */
-  remote_address: string = "";
+  remoteAddress: string = "";
 
   /**
    * The message that will be sent to the server.
@@ -74,12 +78,12 @@ export class RemoteCommand {
    *
    * @constructor
    * @param {RemoteMessage} message - The message to be sent.
-   * @param {string} [remote_address] - The remote address of the server.
+   * @param {string} [remoteAddress] - The remote address of the server.
    */
-  constructor(message: RemoteMessage, remote_address?: string) {
+  constructor(message: RemoteMessage, remoteAddress?: string) {
     this.message = message;
-    if (typeof remote_address !== "undefined") {
-      this.remote_address = remote_address;
+    if (typeof remoteAddress !== "undefined") {
+      this.remoteAddress = remoteAddress;
     }
   }
 }
@@ -88,6 +92,8 @@ export interface VideoMetadata {
   duration: number;
   width: number;
   height: number;
+  aspectWidth: number;
+  aspectHeight: number;
   audioTracks: number;
 }
 

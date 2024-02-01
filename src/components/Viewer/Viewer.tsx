@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {SocketAdaptor} from "../../adaptors/Socket";
-import {PlayRequest, RemoteMessage} from "../../domain/Messages";
+import {PlayRequest, RemoteMessage, VideoDetails} from "../../domain/Messages";
 import {RestAdaptor} from "../../adaptors/RestAdaptor";
 import VideoTab from "../Video/VideoTab";
 import {VideoPlayer} from "@/services/Player";
@@ -42,9 +42,9 @@ const Viewer = (props: VideoControlProps) => {
 
   }, [props.host]);
 
-  const showVideoDetails = (name: string) => {
-    console.log(`video: ${name}`);
-    videoPlayer.playVideo(name);
+  const showVideoDetails = (video: VideoDetails) => {
+    console.log(`video: ${video.video}`);
+    videoPlayer.playVideo(video);
   }
 
   const onStateChange = (newState: PlayState) => {

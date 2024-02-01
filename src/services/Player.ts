@@ -5,7 +5,7 @@ import {
   GeneralResponse,
   RemoteCommand,
   RemoteMessage, RenameRequest,
-  CollectionDetails, MediaDetails
+  MediaDetails, VideoDetails
 } from "../domain/Messages";
 import {log_error} from "./Logger";
 import {showInfoAlert, askQuestion} from "../components/Base/Alert";
@@ -16,7 +16,7 @@ import {StatusCodes} from "../domain/Constants";
  * An interface for a video player. Defines methods for playing videos, managing collections, and editing videos
  */
 export interface Player {
-  playVideo: (video: string) => void;
+  playVideo: (video: VideoDetails) => void;
   fetchDetails: (video? :string, collection?: string) => Promise<MediaDetails>;
   seek: ((interval: number) => void);
   togglePause: (() => void);
@@ -166,11 +166,15 @@ export class VideoPlayer implements Player {
    * Plays the specified video using the remote server, if specified
    * @param {string} video The name of the video file to play
    */
-  playVideo = (video: string) => {
+  playVideo = (video: VideoDetails) => {
     const msg = {
-      remote_address: this.remote_address,
+      remoteAddress: this.remote_address,
       collection: this.currentCollection,
-      video: video
+      video: video.video,
+      width: video.metadata.width,
+      height: video.metadata.height,
+      aspectWidth: video.metadata.aspectWidth,
+      aspectHeight: video.metadata.aspectHeight,
     };
 
     this.post('remote/play', msg);

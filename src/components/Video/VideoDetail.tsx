@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import { Player } from "../../services/Player";
 import {Dropdown, Progress} from "flowbite-react";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {ConvertModal, Modals} from "./Modals";
-import {RemoteMessage} from "../../domain/Messages";
+import {RemoteMessage, VideoDetails} from "../../domain/Messages";
 import {secondsToHMSString} from "../../services/helpers";
 import {ControlBar} from "../ControlBar";
 import {log_error} from "../../services/Logger";
@@ -12,7 +13,7 @@ const HIDE_DIALOG = (<></>);
 
 
 type VideoDetailProps = {
-  video?: string;
+  video?: VideoDetails;
   collection?: string;
   player: Player;
   setDialog: Dispatch<SetStateAction<JSX.Element>>;
@@ -21,7 +22,7 @@ type VideoDetailProps = {
 }
 
 class VideoPropsWrapper {
-  readonly video?: string;
+  readonly video?: VideoDetails;
   readonly collection?: string;
   readonly player: Player;
   readonly setDialog: Dispatch<SetStateAction<JSX.Element>>;
@@ -33,7 +34,7 @@ class VideoPropsWrapper {
       this.lastMessage = props.lastMessage;
     }
 
-    if (this.name() !== props.video) {
+    if (this.name() !== props.video?.video) {
       this.video = props.video;
       this.collection = props.collection;
     }
@@ -45,7 +46,7 @@ class VideoPropsWrapper {
 
   name = (): string => {
     if (typeof this.video !== "undefined") {
-      return this.video;
+      return this.video.video;
     }
 
     if (typeof this.lastMessage?.State !== "undefined") {
@@ -124,6 +125,7 @@ export const VideoItemDetail = (_props: VideoDetailProps) => {
 
     fetchData();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_props.video, _props.collection]);
 
   const description = () => {
@@ -268,7 +270,10 @@ const showConvertModal = (props: VideoPropsWrapper) => {
  * @returns {void}
  */
 const playVideo = (props: VideoPropsWrapper) => {
-  props.player.playVideo(props.name());
+  const video = props.video;
+  if (typeof video !== "undefined") {
+    props.player.playVideo(video);
+  }
 }
 
 /**
@@ -286,7 +291,7 @@ const downloadVideo = (props: VideoPropsWrapper): void => {
     // Create a new link
     const anchor = document.createElement('a');
 
-    anchor.download = props.video;
+    anchor.download = props.name();
     anchor.href = props.getUrl();
 
     // Append to the DOM

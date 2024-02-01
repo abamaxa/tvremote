@@ -50,6 +50,7 @@ describe("ServerLogger", () => {
 describe("log", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRestAdaptor.post.mockClear();
   });
 
   test("log should log message to console if gLogger is null", () => {

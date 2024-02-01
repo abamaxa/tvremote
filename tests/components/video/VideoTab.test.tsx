@@ -1,9 +1,10 @@
 import React from "react";
-import {render, screen, waitFor} from "@testing-library/react";
+import {act, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import VideoTab, {REFRESH_INTERVAL, VideoConfig} from "../../../src/components/Video/VideoTab";
 import {CollectionDetails} from "../../../src/domain/Messages";
 import {RestAdaptor} from "../../../src/adaptors/RestAdaptor";
+import Player from "@/components/Video/Player";
 
 const mockRestAdaptor: RestAdaptor = {
   get: jest.fn(),
@@ -24,12 +25,18 @@ describe("VideoTab", () => {
 
   beforeEach(() => {
     props = {
-      //host: mockRestAdaptor,
       showVideoDetails: jest.fn(),
       videoPlayer: {
-        fetchDetails: jest.fn(() => Promise.resolve({Collection: mockVideoEntry})),
+        fetchDetails: jest.fn(() => Promise.resolve({ Collection: mockVideoEntry })),
         getCurrentCollection: jest.fn(),
         setCurrentCollection: jest.fn(),
+        getAvailableConversions: jest.fn(),
+        deleteVideo: jest.fn(),
+        renameVideo: jest.fn(),
+        convertVideo: jest.fn(),
+        playVideo: jest.fn(),
+        seek: jest.fn(),
+        togglePause: jest.fn(),
       },
       isActive: true,
     };
@@ -59,17 +66,23 @@ describe("VideoTab", () => {
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
     expect(screen.queryByText("Video List")).not.toBeInTheDocument();
   });
-
+  
   it("calls fetchData function every 2 seconds when isActive is true", async () => {
     jest.useFakeTimers();
     await waitFor(() => render(<VideoTab {...props} />));
 
     expect(props.videoPlayer.fetchDetails).toHaveBeenCalled();
 
-    jest.advanceTimersByTime(REFRESH_INTERVAL);
+    await act(async () => {
+      jest.advanceTimersByTime(REFRESH_INTERVAL);
+    });
+    
     expect(props.videoPlayer.fetchDetails).toHaveBeenCalledTimes(2);
 
-    jest.advanceTimersByTime(REFRESH_INTERVAL);
+    await act(async () => {
+      jest.advanceTimersByTime(REFRESH_INTERVAL);
+    });
+    
     expect(props.videoPlayer.fetchDetails).toHaveBeenCalledTimes(3);
 
     jest.clearAllTimers();

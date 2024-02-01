@@ -1,6 +1,6 @@
 import { useEffect, useState} from "react";
-import {CollectionDetails, MediaDetails} from "../../domain/Messages";
-import {VideoPlayer} from "../../services/Player";
+import {CollectionDetails, MediaDetails, VideoDetails} from "../../domain/Messages";
+import {Player, VideoPlayer} from "../../services/Player";
 import {VideoList} from "./VideoList";
 import {log_error} from "../../services/Logger";
 
@@ -11,9 +11,9 @@ import {log_error} from "../../services/Logger";
  * @property {boolean} isActive - Whether the VideoTab is active or not
  */
 export type VideoConfig = {
-  videoPlayer: VideoPlayer;
+  videoPlayer: Player;
   isActive: boolean;
-  showVideoDetails: (name: string) => void;
+  showVideoDetails: (name: VideoDetails) => void;
 }
 
 export const REFRESH_INTERVAL: number = 200000;

@@ -1,7 +1,6 @@
 import {Player} from "../../services/Player";
-import {Dispatch, SetStateAction} from "react";
-import {VideoDetails} from "../../domain/Messages";
 import {LI_STYLE} from "../../domain/Constants";
+import { VideoDetails } from "@/domain/Messages";
 
 /**
  * Describes the arguments of VideoItem component.
@@ -13,18 +12,18 @@ import {LI_STYLE} from "../../domain/Constants";
  */
 type VideoItemArgs = {
   isLast: boolean;
-  name: string;
+  video: VideoDetails;
   videoPlayer: Player;
-  setVideoDetails: (name: string) => void;
+  setVideoDetails: (video: VideoDetails) => void;
 }
 
 export const VideoItem = (props: VideoItemArgs) => {
 
   const classes = getClasses(props.isLast) + " text-gray-600"
-  const displayName = props.name;
+  const displayName = props.video?.video || "";
 
   const showDialog = () => {
-    props.setVideoDetails(props.name);
+    props.setVideoDetails(props.video);
   }
 
   return (

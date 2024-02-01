@@ -7,7 +7,7 @@ type VideoEntryListArgs = {
   entry: CollectionDetails;
   setCurrentCollection: (collection: string) => void;
   videoPlayer: Player;
-  setVideoDetails: (name: string) => void;
+  setVideoDetails: (name: VideoDetails) => void;
 }
 
 type CollectionItemArgs = {
@@ -63,7 +63,7 @@ export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
       <VideoItem
         key={index}
         isLast={index === lastVideo}
-        name={video.video}
+        video={video}
         videoPlayer={message.videoPlayer}
         setVideoDetails={message.setVideoDetails}
       />
@@ -91,10 +91,13 @@ export const VideoList = (message: VideoEntryListArgs): JSX.Element => {
 const CollectionItem = (props: CollectionItemArgs): JSX.Element => {
   const classes = getClasses(props.isLast);
   const fullName = props.parent !== "" ? props.parent + "/" + props.name : props.name;
+  const onClick = () => {
+    props.setCurrentCollection(fullName);
+  }
   return (
     <li
       className={classes}
-      onClick={() => props.setCurrentCollection(fullName)}
+      onClick={onClick}
     >
       {props.name}
     </li>

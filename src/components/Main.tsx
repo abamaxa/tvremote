@@ -1,7 +1,7 @@
 import VideoTab from "./Video/VideoTab";
 import {SearchTab} from "./Search/SearchTab";
 import {TasksTab} from "./Tasks/TasksTab";
-import {HostConfig, RemoteMessage} from "../domain/Messages";
+import {HostConfig, RemoteMessage, VideoDetails} from "../domain/Messages";
 import React, {useEffect, useReducer, useState} from "react";
 import {VideoPlayer} from "../services/Player";
 import {Alert, gAlertManager} from "./Base/Alert";
@@ -38,7 +38,7 @@ export const Main = (props: HostConfig) => {
   const [alertVisible, setAlertVisible] = useState<boolean>(false);
   const [lastMessage, setLastMessage] = useState<RemoteMessage>();
   const [dialog, setDialog] = useState<JSX.Element>((<></>));
-  const [videoName, setVideoName] = useState<string | null>(null);
+  const [currentVideo, setCurrentVideo] = useState<VideoDetails | null>(null);
 
   // Use the reducer with the initial state for the search results.
   // @ts-ignore
@@ -56,8 +56,8 @@ export const Main = (props: HostConfig) => {
     );
   }, [props.host]);
 
-  const showVideoDetails = (name: string) => {
-    setVideoName(name);
+  const showVideoDetails = (video: VideoDetails) => {
+    setCurrentVideo(video);
     setActiveCard(CardNames.VideoDetail);
   }
 
@@ -93,19 +93,19 @@ export const Main = (props: HostConfig) => {
         );
 
       case CardNames.VideoDetail:
-        if (videoName !== null) {
+        if (currentVideo !== null) {
           const onClose = () => {
-            setVideoName(null);
+            setCurrentVideo(null);
             setActiveCard(CardNames.Videos);
           }
 
           return (
             <CardModal title="Video Details" onClose={onClose}>
               <VideoItemDetail
-                video={videoName}
+                video={currentVideo}
                 collection={currentCollection}
                 setDialog={setDialog}
-                back={() => setVideoName(null)}
+                back={() => setCurrentVideo(null)}
                 player={videoPlayer}
                 lastMessage={lastMessage}
               />

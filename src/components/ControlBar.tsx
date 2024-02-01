@@ -8,10 +8,11 @@ import {Player} from "../services/Player";
 import {Button} from "flowbite-react";
 import {HiArrowLeftCircle, HiArrowRightCircle, HiPlayPause} from "react-icons/hi2";
 import {IconBaseProps} from "react-icons";
+import { VideoDetails } from "@/domain/Messages";
 
 type ControlBarProps = {
   player: Player;
-  video?: string;
+  video?: VideoDetails;
 }
 
 export const ControlBar = (props: ControlBarProps) => {
